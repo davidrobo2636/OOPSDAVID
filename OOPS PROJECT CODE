@@ -1,0 +1,3089 @@
+package src;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.sql.*;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import javax.sound.sampled.*;
+import java.awt.print.PrinterException;
+
+public class FitnessTracker {
+    private JFrame frame;
+    private JTextField regNoField;
+    private JTextField nameField;
+    private JTextField nameField1;
+    private JTextField ageField;
+    private JTextField ph_noField;
+    private JTextField weightField;
+    private JTextField heightField;
+    private JTextField bloodPressureField;
+    private JTextField bloodSugarField;
+    private JTextField allergiesField;
+    private JTextArea addressField;
+    private JButton registerButton;
+    private JButton registerButton1;
+    private JButton editButton;
+    private JButton printButton;
+    private JButton exitButton;
+    private JButton printButton1;
+    private JButton closeButton;
+    private JButton retry;
+    private JTable dataTable1;
+    private JTable dataTable2;
+    private Connection conn;
+    private static final int ANIMATION_DELAY = -999999999; 
+    private static final int INCREMENT_SIZE = 4;
+    private static final ImageIcon originalIcon30 = new ImageIcon("C:\\Users\\david\\Downloads\\16282-genshin-shrug.png");
+    private static final Image img30  = originalIcon30.getImage();
+    private static final Image resizedImage30  = img30.getScaledInstance(80, 80, java.awt.Image.SCALE_SMOOTH);
+    private static final ImageIcon resizedIcon30 = new ImageIcon(resizedImage30);
+    
+    private static final ImageIcon originalIcon40 = new ImageIcon("C:\\Users\\david\\Downloads\\6212-jeanthumbsup.png");
+    private static final Image img40  = originalIcon40.getImage();
+    private static final Image resizedImage40  = img40.getScaledInstance(80, 80, java.awt.Image.SCALE_SMOOTH);
+    private static final ImageIcon resizedIcon40 = new ImageIcon(resizedImage40);
+    
+    private static final ImageIcon originalIcon50 = new ImageIcon("C:\\Users\\david\\Downloads\\4a3af520b48192f77bb26286eeb1fd05_3456832249473348012.jpg");
+    private static final Image img50  = originalIcon50.getImage();
+    private static final Image resizedImage50  = img50.getScaledInstance(80, 80, java.awt.Image.SCALE_SMOOTH);
+    private static final ImageIcon resizedIcon50 = new ImageIcon(resizedImage50);
+    
+    private static final ImageIcon originalIcon60 = new ImageIcon(" C:\\Users\\david\\Downloads\\5142-chibi-keqing-think.png");
+    private static final Image img60  = originalIcon60.getImage();
+    private static final Image resizedImage60  = img60.getScaledInstance(80, 80, java.awt.Image.SCALE_SMOOTH);
+    private static final ImageIcon resizedIcon60 = new ImageIcon(resizedImage60);
+    
+    
+   
+    class BackgroundPanel extends JPanel {
+        private Image backgroundImage;
+
+        public BackgroundPanel(String imagePath) {
+            try {
+                backgroundImage = ImageIO.read(new File(imagePath));
+            } catch (IOException e) {
+                showErrorDialog("Failed to load background image.", e);
+            }
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+        }
+    }
+
+    class ShadowLabel extends JLabel {
+        private Color shadowColor = Color.GRAY;  
+        private int shadowOffsetX = 4;           
+        private int shadowOffsetY = 4;           
+
+        public ShadowLabel(String text) {
+            super(text);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2d = (Graphics2D) g.create();
+
+            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+            g2d.setColor(shadowColor);
+            g2d.drawString(getText(), shadowOffsetX, shadowOffsetY + getFontMetrics(getFont()).getAscent());
+
+            g2d.setColor(getForeground());
+            g2d.drawString(getText(), 0, getFontMetrics(getFont()).getAscent());
+
+            g2d.dispose();
+        }
+
+        public void setShadowColor(Color color) {
+            this.shadowColor = color;
+        }
+
+        public void setShadowOffset(int offsetX, int offsetY) {
+            this.shadowOffsetX = offsetX;
+            this.shadowOffsetY = offsetY;
+        }
+    }
+
+    public FitnessTracker() {
+        JFrame frame = new JFrame("Patient Tracker");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        frame.setSize(100, 100);
+        frame.setLocationRelativeTo(null); 
+
+        BackgroundPanel backgroundPanel = new BackgroundPanel("C:\\Users\\david\\Downloads\\surgical-item.jpg");
+        backgroundPanel.setLayout(null);
+        frame.setContentPane(backgroundPanel);
+
+        ShadowLabel label = new ShadowLabel("PATIENT'S DETAIL");
+        label.setBounds(85, 100, 1000, 60);
+        label.setFont(new Font("Times New Roman", Font.BOLD, 45));
+        label.setForeground(Color.WHITE);  
+        label.setShadowColor(Color.BLACK);  
+        label.setShadowOffset(3,3);       
+
+        ImageIcon icon = new ImageIcon("C:\\Users\\david\\OneDrive\\Pictures\\Screenshots\\Screenshot 2024-10-19 214849.png");
+        frame.setIconImage(icon.getImage());
+
+        ImageIcon originalIcon = new ImageIcon("C:\\Users\\david\\Downloads\\3534124.png");
+        Image img = originalIcon.getImage();
+        Image resizedImage = img.getScaledInstance(60, 60, java.awt.Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon = new ImageIcon(resizedImage);
+
+        ImageIcon originalIcon1 = new ImageIcon("C:\\Users\\david\\Downloads\\102647.png");
+        Image img1 = originalIcon1.getImage();
+        Image resizedImage1 = img1.getScaledInstance(60, 60, java.awt.Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon1 = new ImageIcon(resizedImage1);
+
+        ImageIcon originalIcon2 = new ImageIcon("C:\\Users\\david\\Downloads\\813226.png");
+        Image img2 = originalIcon2.getImage();
+        Image resizedImage2 = img2.getScaledInstance(60, 60, java.awt.Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon2 = new ImageIcon(resizedImage2);
+
+        ImageIcon originalIcon3 = new ImageIcon("C:\\Users\\david\\Downloads\\Font_Awesome_5_solid_sign-out-alt.svg.png");
+        Image img3 = originalIcon3.getImage();
+        Image resizedImage3 = img3.getScaledInstance(70, 70, java.awt.Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon3 = new ImageIcon(resizedImage3);
+
+        regNoField = new JTextField();
+        nameField = new JTextField();
+        ageField = new JTextField();
+        ph_noField = new JTextField();
+        weightField = new JTextField();
+        heightField = new JTextField();
+        bloodPressureField = new JTextField();
+        bloodSugarField = new JTextField();
+        allergiesField = new JTextField();
+        addressField = new JTextArea();
+        closeButton = new JButton("Close");
+
+        registerButton = new JButton("Tal\nly",resizedIcon);
+        editButton = new JButton("Edit",resizedIcon1);
+        printButton = new JButton("Print",resizedIcon2);
+        exitButton = new JButton("Exit",resizedIcon3);
+        registerButton.setFont(new Font("Times New Roman", Font.ITALIC, 20));
+        editButton.setFont(new Font("Times New Roman", Font.ITALIC, 20));
+        printButton.setFont(new Font("Times New Roman", Font.ITALIC, 20));
+        exitButton.setFont(new Font("Times New Roman", Font.ITALIC, 20));
+        registerButton.setBounds(100, 250, 150, 60);
+        editButton.setBounds(350, 250, 150, 60);
+        printButton.setBounds(100, 400, 150, 60);
+        exitButton.setBounds(350, 400, 150, 60);
+        ImageIcon imag1=new ImageIcon("C:\\Users\\david\\Downloads\\813226.png");
+        Image image0 = imag1.getImage();
+        Image resizedImage4 = image0.getScaledInstance(49, 49, java.awt.Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon4 = new ImageIcon(resizedImage4);
+
+        ImageIcon imag2=new ImageIcon("C:\\Users\\david\\Downloads\\686136287.png");
+        Image image1 = imag2.getImage();
+        Image resizedImage5 = image1.getScaledInstance(49, 49, java.awt.Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon5 = new ImageIcon(resizedImage5);
+
+        ImageIcon imag3=new ImageIcon("C:\\Users\\david\\Downloads\\686136287.png");
+        Image image2 = imag3.getImage();
+        Image resizedImage6 = image2.getScaledInstance(49, 49, java.awt.Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon6 = new ImageIcon(resizedImage6);
+
+        ImageIcon imag4=new ImageIcon("C:\\Users\\david\\Downloads\\downloads-icon-15.png");
+        Image image3 = imag4.getImage();
+        Image resizedImage7 = image3.getScaledInstance(49, 49, java.awt.Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon7 = new ImageIcon(resizedImage7);
+
+        ImageIcon[] images = {resizedIcon4,resizedIcon5,resizedIcon6,resizedIcon7};
+
+            String[] labels = {"Print all", "Delete all", "Delete one","Download"};
+
+            JComboBox<String> comboBox = new JComboBox<>(labels);
+            comboBox.setSelectedIndex(-1);
+
+            comboBox.setRenderer(new DefaultListCellRenderer() {
+                @Override
+                public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                    JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                    if (index >= 0) {
+                        label.setIcon(images[index]); 
+                        try {
+
+                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                            Clip clip = AudioSystem.getClip();
+                            clip.open(audioStream);
+
+                            clip.start();
+                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                            ex.printStackTrace();
+                            showErrorDialog("Failed to play sound.", ex);
+                        }
+                    }
+                    return label;
+                }
+            });
+
+            comboBox.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    String selectedItem = (String) comboBox.getSelectedItem();
+                    if (selectedItem == "Print all"){
+                    	try {
+
+                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                            Clip clip = AudioSystem.getClip();
+                            clip.open(audioStream);
+
+                            clip.start();
+                                    try {
+
+                                        JFrame dataFrame = new JFrame("Patient Data");
+                                        dataFrame.setSize(1000, 600);
+                                        dataFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                                        dataFrame.setLayout(new BorderLayout());
+                                        ImageIcon icon = new ImageIcon("C:\\Users\\david\\OneDrive\\Pictures\\Screenshots\\Screenshot 2024-10-19 214849.png");
+                                        dataFrame.setIconImage(icon.getImage());
+
+                                        String query = "SELECT * FROM patient_details";
+                                        PreparedStatement pstmt = conn.prepareStatement(query);
+                                        ResultSet rs = pstmt.executeQuery();
+
+                                        DefaultTableModel tableModel = new DefaultTableModel();
+                                        tableModel.addColumn("Reg No");
+                                        tableModel.addColumn("Name");
+                                        tableModel.addColumn("Age");
+                                        tableModel.addColumn("Gender");
+                                        tableModel.addColumn("Date of Birth");
+                                        tableModel.addColumn("Phone.No");
+                                        tableModel.addColumn("Weight");
+                                        tableModel.addColumn("Height");
+                                        tableModel.addColumn("Blood Pressure");
+                                        tableModel.addColumn("Blood Sugar");
+                                        tableModel.addColumn("Allergies");
+                                        tableModel.addColumn("Address");
+
+                                        while (rs.next()) {
+                                            String regNo = rs.getString("reg_no");
+                                            String name = rs.getString("name");
+                                            String Age = rs.getString("age");
+                                            String Gender = rs.getString("gender");
+                                            String dob = rs.getString("dob");
+                                            String ph_no = rs.getString("ph_no");
+                                            String weight = rs.getString("weight");
+                                            String height = rs.getString("height");
+                                            String bloodPressure = rs.getString("blood_pressure");
+                                            String bloodSugar = rs.getString("blood_sugar");
+                                            String Allergies = rs.getString("allergies");
+                                            String Address = rs.getString("address");
+
+                                            tableModel.addRow(new Object[] { regNo, name, Age ,Gender, dob, ph_no, weight, height, bloodPressure, bloodSugar, Allergies , Address });
+                                        }
+
+                                        JTable dataTable = new JTable(tableModel);
+                                        dataTable1 = dataTable;
+
+                                        JScrollPane scrollPane = new JScrollPane(dataTable);
+
+                                        dataFrame.add(scrollPane, BorderLayout.CENTER);
+
+                                        JPanel buttonPanel = new JPanel();
+                                        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+
+                                     closeButton = new JButton("Close");
+                                     closeButton.setBackground(Color.RED);
+                                     closeButton.setForeground(Color.WHITE);
+                                     JButton saveButton = new JButton("Save ");
+                                     saveButton.setBackground(Color.GREEN);
+                                     saveButton.setForeground(Color.WHITE);
+
+                                     closeButton.setPreferredSize(new Dimension(68, 20)); 
+                                     saveButton.setPreferredSize(new Dimension(68, 20)); 
+
+                                     buttonPanel.add(closeButton);
+                                     buttonPanel.add(saveButton);
+
+                                     dataFrame.add(buttonPanel, BorderLayout.EAST);
+                                     saveButton.addActionListener(new ActionListener() {
+                                    	    @Override
+                                    	    public void actionPerformed(ActionEvent e) {
+
+                                            	try {
+                                            		boolean complete = dataTable1.print();
+                        							if (complete) {
+                        							    JOptionPane.showMessageDialog(null, "Printing Complete", "Printer", JOptionPane.INFORMATION_MESSAGE,resizedIcon40);
+                        							    try {
+
+                        							        File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        							        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        							        Clip clip = AudioSystem.getClip();
+                        							        clip.open(audioStream);
+
+                        							        clip.start();
+                        							    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                        							        ex1.printStackTrace();
+                        							        showErrorDialog("Failed to play sound.", ex1);
+                        							    }
+                        							} else {
+                        								try {
+
+                        							        File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                        							        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        							        Clip clip = AudioSystem.getClip();
+                        							        clip.open(audioStream);
+
+                        							        clip.start();
+                        							    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                        							        ex1.printStackTrace();
+                        							        showErrorDialog("Failed to play sound.", ex1);
+                        							    }
+                        							    JOptionPane.showMessageDialog(null, "Printing Canceled", "Printer", JOptionPane.WARNING_MESSAGE,resizedIcon50);
+                        							    try {
+
+                        							        File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        							        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        							        Clip clip = AudioSystem.getClip();
+                        							        clip.open(audioStream);
+
+                        							        clip.start();
+                        							    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                        							        ex1.printStackTrace();
+                        							        showErrorDialog("Failed to play sound.", ex1);
+                        							    }
+                        							}
+                                                } catch (PrinterException pe) {
+                                                	try {
+
+                                                        File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                                                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                                        Clip clip = AudioSystem.getClip();
+                                                        clip.open(audioStream);
+
+                                                        clip.start();
+                                                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                                        ex1.printStackTrace();
+                                                        showErrorDialog("Failed to play sound.", ex1);
+                                                    }
+
+                                                    JOptionPane.showMessageDialog(null, "Printing Failed: " + pe.getMessage(), "Printer", JOptionPane.ERROR_MESSAGE,resizedIcon30);
+                                                    try {
+
+                                                        File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                                        Clip clip = AudioSystem.getClip();
+                                                        clip.open(audioStream);
+
+                                                        clip.start();
+                                                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                                        ex1.printStackTrace();
+                                                        showErrorDialog("Failed to play sound.", ex1);
+                                                    }
+                                                }
+
+                                    	    }
+                                    	});
+
+                                     closeButton.addActionListener(new ActionListener() {
+                                         @Override
+                                         public void actionPerformed(ActionEvent e) {
+                                             try {
+
+                                                 File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                                 AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+                                                 Clip clip = AudioSystem.getClip();
+                                                 clip.open(audioStream);
+                                                 clip.start();
+                                             } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                                 ex.printStackTrace();
+                                                 showErrorDialog("Failed to play sound.", ex);
+                                             }
+                                             try {
+
+                                                 File soundFile = new File("C:\\Users\\david\\Downloads\\exit.wav");
+                                                 AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+                                                 Clip clip = AudioSystem.getClip();
+                                                 clip.open(audioStream);
+                                                 clip.start();
+                                                 try {
+                                                     Thread.sleep(500);
+                                                 } catch (InterruptedException e1) {
+                                                     e1.printStackTrace();
+                                                 }
+                                             } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                                 ex.printStackTrace();
+                                                 showErrorDialog("Failed to play sound.", ex);
+                                             }
+                                             dataFrame.dispose();
+                                         }
+                                     });
+
+                                     dataFrame.setLocationRelativeTo(null);
+                                     dataFrame.setVisible(true);
+                                    } catch (SQLException e1) {
+                                        showErrorDialog("Failed to retrieve data from the database.", e1);
+                                    }
+                    	}  
+                        catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                            ex.printStackTrace();
+                            showErrorDialog("Failed to play sound.", ex);
+                        }
+
+                    }
+                    else if(selectedItem == "Delete one") {
+                    	class LoadingScreen extends JWindow {
+                            private JProgressBar progressBar;
+                            public LoadingScreen() {
+                            	setSize(200, 100);
+                                setLocationRelativeTo(null);
+
+                                JPanel panel = new JPanel();
+                                panel.setLayout(new BorderLayout());
+                                JLabel label = new JLabel("Deleting, please wait...", SwingConstants.CENTER);
+                                panel.add(label, BorderLayout.CENTER);
+
+                                progressBar = new JProgressBar();
+                                progressBar.setIndeterminate(true);  
+                                panel.add(progressBar, BorderLayout.SOUTH);
+
+                                add(panel);
+
+                                setAlwaysOnTop(true);
+
+                                setVisible(true);
+                            }
+                            public void showLoadingScreen() {
+                                setVisible(true);
+                            }
+                            public void closeLoadingScreen() {
+                                setVisible(false);
+                                dispose();
+                            }
+                        }
+                            	try {
+
+                                    File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                    Clip clip = AudioSystem.getClip();
+                                    clip.open(audioStream);
+
+                                    clip.start();
+
+                                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                    ex.printStackTrace();
+                                    showErrorDialog("Failed to play sound.", ex);
+                                }
+                            		int response = JOptionPane.showConfirmDialog(null, 
+                                            "Do you want to continue with the delete operation?", "Confirmation", 
+                                            JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,resizedIcon60);
+                                    if (response == JOptionPane.YES_OPTION) {
+                                    	try {
+
+                                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                            Clip clip = AudioSystem.getClip();
+                                            clip.open(audioStream);
+
+                                            clip.start();
+                                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                            ex.printStackTrace();
+                                            showErrorDialog("Failed to play sound.", ex);
+                                        }
+
+                        		    	        	try {
+
+                        		    	                File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        		    	                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        		    	                Clip clip = AudioSystem.getClip();
+                        		    	                clip.open(audioStream);
+
+                        		    	                clip.start();
+                        		    	            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        		    	                ex.printStackTrace();
+                        		    	                showErrorDialog("Failed to play sound.", ex);
+                        		    	            }
+                        		    	        	class BackgroundPanel1 extends JPanel {
+                        		    	                private Image backgroundImage1;
+
+                        		    	                public BackgroundPanel1(String imagePath) {
+                        		    	                    try {
+                        		    	                        backgroundImage1 = ImageIO.read(new File(imagePath));
+                        		    	                    } catch (IOException e) {
+                        		    	                        e.printStackTrace();
+                        		    	                        try {
+
+                        		    	                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        		    	                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        		    	                            Clip clip = AudioSystem.getClip();
+                        		    	                            clip.open(audioStream);
+
+                        		    	                            clip.start();
+                        		    	                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        		    	                            ex.printStackTrace();
+                        		    	                            showErrorDialog("Failed to play sound.", ex);
+                        		    	                        }
+                        		    	                    }
+                        		    	                }
+
+                        		    	                @Override
+                        		    	                protected void paintComponent(Graphics g) {
+                        		    	                    super.paintComponent(g);
+                        		    	                    g.drawImage(backgroundImage1, 0, 0, getWidth(), getHeight(), this);
+                        		    	                }
+                        		    	            }
+                        		    	        	ImageIcon originalIcon2 = new ImageIcon("C:\\Users\\david\\Downloads\\686136287.png");
+                        		    	            Image img2 = originalIcon2.getImage();
+                        		    	            Image resizedImage2 = img2.getScaledInstance(60, 60, java.awt.Image.SCALE_SMOOTH);
+                        		    	            ImageIcon resizedIcon2 = new ImageIcon(resizedImage2);
+
+                        		    	            ImageIcon originalIcon5 = new ImageIcon("C:\\Users\\david\\Downloads\\3817694.png");
+                        		    	            Image img5 = originalIcon5.getImage();
+                        		    	            Image resizedImage5 = img5.getScaledInstance(60, 60, java.awt.Image.SCALE_SMOOTH);
+                        		    	            ImageIcon resizedIcon5 = new ImageIcon(resizedImage5);
+                        		    	        	JFrame frame1 = new JFrame("Patient Tracker");
+                        		    	        	frame1.setSize(750, 400); 
+                        		    	        	frame1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); 
+                        		    	        	frame1.setLayout(null);
+                        		    	            ImageIcon icon = new ImageIcon("C:\\Users\\david\\OneDrive\\Pictures\\Screenshots\\Screenshot 2024-10-19 214849.png");
+                        		    	            frame1.setIconImage(icon.getImage());
+                        		    	            BackgroundPanel1 backgroundPanel = new BackgroundPanel1("C:\\Users\\david\\Downloads\\surgical-item.jpg");
+                        		    	            backgroundPanel.setLayout(null);
+                        		    	            frame1.setContentPane(backgroundPanel);
+                        		    	            JLabel label1 = new JLabel("DELETE");
+                        		    	            label1.setFont(new Font("Times New Roman", Font.BOLD, 45));
+                        		    	            label1.setBounds(200, 20, 1000, 40);
+                        		    	            retry = new JButton("Retry",resizedIcon5);
+                        		    	            retry.setFont(new Font("Times New Roman", Font.ITALIC, 20));
+                        		    	            backgroundPanel.add(label1);
+                        		    	            JLabel name=new JLabel("Name:");
+                        		    	            printButton1 = new JButton("Delete",resizedIcon2);
+                        		    	            printButton1.setFont(new Font("Times New Roman", Font.ITALIC, 20));
+                        		    	            nameField.setBounds(300, 100, 300, 30);
+                        		    	            name.setBounds(100, 100, 300, 30);
+                        		    	            printButton1.setBounds(150, 200, 150, 60);
+                        		    	            retry.setBounds(350, 200 , 150, 60);
+                        		    	            backgroundPanel.add(name);
+                        		    	            backgroundPanel.add(nameField);
+                        		    	            backgroundPanel.add(printButton1);
+                        		    	            backgroundPanel.add(retry);
+                        		    	            name.setForeground(Color.white);
+                        		    	            nameField.setBackground(Color.LIGHT_GRAY);
+                        		    	            printButton1.setBackground(Color.LIGHT_GRAY);
+                        		    	            retry.setBackground(Color.LIGHT_GRAY);
+                        		    	            closeButton = new JButton("Close");
+                        		    	            closeButton.setBackground(Color.RED);
+                        		    	            closeButton.setForeground(Color.WHITE);
+                        		    	            closeButton.setBounds(550, 300 , 100, 30);
+                        		    	            closeButton.addActionListener(new ActionListener() {
+                        		    	                @Override
+                        		    	                public void actionPerformed(ActionEvent e) {
+                        		    	                	try {
+
+                        		    	                        File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        		    	                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        		    	                        Clip clip = AudioSystem.getClip();
+                        		    	                        clip.open(audioStream);
+
+                        		    	                        clip.start();
+                        		    	                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        		    	                        ex.printStackTrace();
+                        		    	                        showErrorDialog("Failed to play sound.", ex);
+                        		    	                    }
+                        		    	                	try {
+
+                        		    	                        File soundFile = new File("C:\\Users\\david\\Downloads\\exit.wav");
+                        		    	                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        		    	                        Clip clip = AudioSystem.getClip();
+                        		    	                        clip.open(audioStream);
+
+                        		    	                        clip.start();
+                        		    	                        try {
+                        		    	        					Thread.sleep(500);
+                        		    	        				} catch (InterruptedException e1) {
+                        		    	        					e1.printStackTrace();
+                        		    	        				}
+                        		    	                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        		    	                        ex.printStackTrace();
+                        		    	                        showErrorDialog("Failed to play sound.", ex);
+                        		    	                        try {
+
+                        		    	                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        		    	                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        		    	                            Clip clip = AudioSystem.getClip();
+                        		    	                            clip.open(audioStream);
+
+                        		    	                            clip.start();
+                        		    	                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                        		    	                            ex1.printStackTrace();
+                        		    	                            showErrorDialog("Failed to play sound.", ex1);
+                        		    	                        }
+                        		    	                    }
+                        		    	                	frame1.dispose();
+                        		    	                    }
+                        		    	                });
+                        		    	            backgroundPanel.add(closeButton);
+                        		    	            retry.addActionListener(new ActionListener() {
+                        		    	                @Override
+                        		    	                public void actionPerformed(ActionEvent e) {
+                        		    	                	try {
+
+                        		    	                        File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        		    	                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        		    	                        Clip clip = AudioSystem.getClip();
+                        		    	                        clip.open(audioStream);
+
+                        		    	                        clip.start();
+                        		    	                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        		    	                        ex.printStackTrace();
+                        		    	                        showErrorDialog("Failed to play sound.", ex);
+                        		    	                    }
+                        		    	                	nameField.setText("");
+                        		    	                }
+                        		    	            });
+
+                        		    	            printButton1.addActionListener(new ActionListener() {
+                        		    	                @Override
+                        		    	                public void actionPerformed(ActionEvent e) {
+                        		    	                	try {
+
+                        		    	                        File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        		    	                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        		    	                        Clip clip = AudioSystem.getClip();
+                        		    	                        clip.open(audioStream);
+
+                        		    	                        clip.start();
+                        		    	                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        		    	                        ex.printStackTrace();
+                        		    	                        showErrorDialog("Failed to play sound.", ex);
+                        		    	                    }
+                        		    	                	try {
+                        		    	                		String name = nameField.getText();
+                        		    	                		if (name.isEmpty()) {   
+                        		    	                			try {
+
+                        		    	                                File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                        		    	                                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        		    	                                Clip clip = AudioSystem.getClip();
+                        		    	                                clip.open(audioStream);
+
+                        		    	                                clip.start();
+                        		    	                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                        		    	                                ex1.printStackTrace();
+                        		    	                                showErrorDialog("Failed to play sound.", ex1);
+                        		    	                            }
+
+                        		    	                			JOptionPane.showMessageDialog(frame1, 
+                        		    	                                    "        An error occurred \n Nothing has been entered!  \n ", 
+                        		    	                                    "Error!", JOptionPane.ERROR_MESSAGE,resizedIcon30);
+                        		    	                			
+                        		    	                			try {
+
+                        		    	                                File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        		    	                                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        		    	                                Clip clip = AudioSystem.getClip();
+                        		    	                                clip.open(audioStream);
+
+                        		    	                                clip.start();
+                        		    	                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        		    	                                ex.printStackTrace();
+                        		    	                                showErrorDialog("Failed to play sound.", ex);
+                        		    	                            }
+                        		    	                        }
+                        		    	                        else {
+
+                        		                        		    			try {
+                        		                        		    				PreparedStatement pstmt = conn.prepareStatement("DELETE FROM patient_details WHERE name = ?");
+
+                                		    	                        		    pstmt.setString(1, name);
+
+                                		    	                        		    int rowsDeleted = pstmt.executeUpdate();
+
+                                		    	                        		    if (rowsDeleted > 0) {
+                                		    	                        		    	LoadingScreen loadingScreen = new LoadingScreen();
+                                        		                        		        loadingScreen.showLoadingScreen();
+                                        		                        		        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+                                        		                        		        	@Override
+                                        		                        		            protected Void doInBackground() throws Exception {
+                                        		                        		                Thread.sleep(4000); 
+                                        		                        		                try {
+
+                                        		                                                    File soundFile = new File("C:\\Users\\david\\Downloads\\tv-shut-down-185446.wav");
+                                        		                                                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                        		                                                    Clip clip = AudioSystem.getClip();
+                                        		                                                    clip.open(audioStream);
+
+                                        		                                                    clip.start();
+                                        		                                                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                        		                                                    ex1.printStackTrace();
+                                        		                                                    showErrorDialog("Failed to play sound.", ex1);
+                                        		                                                }
+                                        		                        		                loadingScreen.closeLoadingScreen();
+                                        		                        		                System.out.println("Deleted " + rowsDeleted + " row(s) for patient name: " + name);
+
+                                        		    	                        		        JOptionPane.showMessageDialog(frame1, 
+                                        		    	                        		                "Deleted " + rowsDeleted + " record(s) for patient: " + name, 
+                                        		    	                        		                "Success", JOptionPane.INFORMATION_MESSAGE,resizedIcon40);
+                                        		                        		                return null;
+                                        		                        		            }
+                            		                        		    			};
+                                    		                        		        worker.execute();
+
+                                		    	                        		    } else {
+
+                                		    	                        		        System.out.println("No records found for patient name: " + name);
+
+                                		    	                        		        JOptionPane.showMessageDialog(frame1, 
+                                		    	                        		                "No records found for patient: " + name, 
+                                		    	                        		                "Error", JOptionPane.ERROR_MESSAGE,resizedIcon30);
+                                		    	                        		    }
+
+                        		                        		    	            try {
+
+                        		                        		    	                File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        		                        		    	                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        		                        		    	                Clip clip = AudioSystem.getClip();
+                        		                        		    	                clip.open(audioStream);
+
+                        		                        		    	                clip.start();
+                        		                        		    	            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+
+                        		                        		    	                ex.printStackTrace();
+                        		                        		    	                showErrorDialog("Failed to play sound.", ex);
+                        		                        		    	            }
+                        		                        		                } catch (SQLException e1) {
+                        		                        						e1.printStackTrace();
+                        		                        						try {
+
+                        		                                                    File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                        		                                                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        		                                                    Clip clip = AudioSystem.getClip();
+                        		                                                    clip.open(audioStream);
+
+                        		                                                    clip.start();
+                        		                                                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                        		                                                    ex1.printStackTrace();
+                        		                                                    showErrorDialog("Failed to play sound.", ex1);
+                        		                                                }
+                        		                        						
+                        		                        						JOptionPane.showMessageDialog(frame1, 
+                        		    	                        		                "        An error occurred \n Nothing has been entered!  \n " , 
+                        		    	                        		                "Error!", JOptionPane.ERROR_MESSAGE,resizedIcon30);
+                        		                        						try {
+
+                        		                                                    File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        		                                                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        		                                                    Clip clip = AudioSystem.getClip();
+                        		                                                    clip.open(audioStream);
+
+                        		                                                    clip.start();
+                        		                                                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                        		                                                    ex1.printStackTrace();
+                        		                                                    showErrorDialog("Failed to play sound.", ex1);
+                        		                                                }
+                        		                        		                }
+
+                                         		    	           try {
+
+                           		    	                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                           		    	                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                           		    	                            Clip clip = AudioSystem.getClip();
+                           		    	                            clip.open(audioStream);
+
+                           		    	                            clip.start();
+                           		    	                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                           		    	                            ex1.printStackTrace();
+                           		    	                            showErrorDialog("Failed to play sound.", ex1);
+                           		    	                        }
+
+                        		    	                                 nameField.setText("");
+                        		    	                        }
+                        		    	                	}
+                        		    	                    catch (Exception ex) {
+                        		    	                        System.out.println("Error printing patient details: " + ex.getMessage());
+                        		    	                        try {
+
+                        		    	                            File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                        		    	                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        		    	                            Clip clip = AudioSystem.getClip();
+                        		    	                            clip.open(audioStream);
+
+                        		    	                            clip.start();
+                        		    	                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                        		    	                            ex1.printStackTrace();
+                        		    	                            showErrorDialog("Failed to play sound.", ex1);
+                        		    	                        }
+                        		    	                    	JOptionPane.showMessageDialog(frame1, 
+                        		    	                                "        An error occurred \n Nothing has been printed!  \n ", 
+                        		    	                                "Error!", JOptionPane.ERROR_MESSAGE,resizedIcon30);
+                        		    	                    	try {
+
+                        		    	                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        		    	                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        		    	                            Clip clip = AudioSystem.getClip();
+                        		    	                            clip.open(audioStream);
+
+                        		    	                            clip.start();
+                        		    	                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                        		    	                            ex1.printStackTrace();
+                        		    	                            showErrorDialog("Failed to play sound.", ex1);
+                        		    	                        }
+                        		    	                    }
+                        		    	                }
+                        		    	            });     
+                        		    	            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                        		    	            int screenHeight = screenSize.height;
+                        		    	            int windowHeight = frame.getHeight();
+                        		    	            int x =230; 
+                        		    	            int y = (screenHeight - windowHeight) / 2;
+                        		    	            frame1.setLocation(x, y);
+                        		    	            frame1.setVisible(true);
+
+                        		    	            try {
+
+                        		    	                File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        		    	                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        		    	                Clip clip = AudioSystem.getClip();
+                        		    	                clip.open(audioStream);
+
+                        		    	                clip.start();
+                        		    	            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        		    	            	try {
+
+                                                            File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                                                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                                            Clip clip = AudioSystem.getClip();
+                                                            clip.open(audioStream);
+
+                                                            clip.start();
+                                                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                                            ex1.printStackTrace();
+                                                            showErrorDialog("Failed to play sound.", ex1);
+                                                        }
+                        		    	                ex.printStackTrace();
+                        		    	                showErrorDialog("Failed to play sound.", ex);
+                        		    	            }
+
+                                    } else {
+                                    	try {
+
+                                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                            Clip clip = AudioSystem.getClip();
+                                            clip.open(audioStream);
+
+                                            clip.start();
+                                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                            ex.printStackTrace();
+                                            showErrorDialog("Failed to play sound.", ex);
+                                        }
+                                    }
+                    		     }
+                    else if(selectedItem == "Delete all"){
+                    	class LoadingScreen extends JWindow {
+                            private JProgressBar progressBar;
+                            public LoadingScreen() {
+                                setSize(200, 100);
+                                setLocationRelativeTo(null);
+                                JPanel panel = new JPanel();
+                                panel.setLayout(new BorderLayout());
+                                JLabel label = new JLabel("Deleting, please wait...", SwingConstants.CENTER);
+                                panel.add(label, BorderLayout.CENTER);
+                                progressBar = new JProgressBar();
+                                progressBar.setIndeterminate(true); 
+                                panel.add(progressBar, BorderLayout.SOUTH);
+                                add(panel);
+                            }
+                            public void showLoadingScreen() {
+                                setVisible(true);
+                            }
+                            public void closeLoadingScreen() {
+                                setVisible(false);
+                                dispose();
+                            }
+                        }
+                            	try {
+
+                                    File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                    Clip clip = AudioSystem.getClip();
+                                    clip.open(audioStream);
+
+                                    clip.start();
+
+                                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                    ex.printStackTrace();
+                                    showErrorDialog("Failed to play sound.", ex);
+                                }
+                            		int response = JOptionPane.showConfirmDialog(null, 
+                                            "Do you want to continue with the delete operation?", "Confirmation", 
+                                            JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,resizedIcon60);
+                                    if (response == JOptionPane.YES_OPTION) {
+                                    	try {
+
+                                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                            Clip clip = AudioSystem.getClip();
+                                            clip.open(audioStream);
+
+                                            clip.start();
+                                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                            ex.printStackTrace();
+                                            showErrorDialog("Failed to play sound.", ex);
+                                        }
+                                    	LoadingScreen loadingScreen = new LoadingScreen();
+                        		        loadingScreen.showLoadingScreen();
+                        		        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+                        		            @Override
+                        		            protected Void doInBackground() throws Exception {
+                        		                Thread.sleep(4000); 
+                        		                try {
+
+                                                    File soundFile = new File("C:\\Users\\david\\Downloads\\tv-shut-down-185446.wav");
+                                                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                                    Clip clip = AudioSystem.getClip();
+                                                    clip.open(audioStream);
+
+                                                    clip.start();
+                                                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                                    ex1.printStackTrace();
+                                                    showErrorDialog("Failed to play sound.", ex1);
+                                                }
+                        		                return null;
+                        		            }
+                        		            @Override
+                        		            protected void done() {
+                        		                loadingScreen.closeLoadingScreen();
+                        		    			try {
+                        		    		        PreparedStatement pstmt;
+                        		    		        pstmt = conn.prepareStatement("DELETE FROM patient_details");
+                        		    				int rowsDeleted = pstmt.executeUpdate();
+                        		    	            System.out.println("Deleted " + rowsDeleted + " rows from patient_details table.");
+                        		    	            JOptionPane.showMessageDialog(frame, 
+                        		    	                    "    Warning deleted "+ rowsDeleted +" data", 
+                        		    	                    "Warning!", JOptionPane.WARNING_MESSAGE,resizedIcon50);
+                        		    	            try {
+
+                        		    	                File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        		    	                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        		    	                Clip clip = AudioSystem.getClip();
+                        		    	                clip.open(audioStream);
+
+                        		    	                clip.start();
+                        		    	            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        		    	            	try {
+
+                                                            File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                                                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                                            Clip clip = AudioSystem.getClip();
+                                                            clip.open(audioStream);
+
+                                                            clip.start();
+                                                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                                            ex1.printStackTrace();
+                                                            showErrorDialog("Failed to play sound.", ex1);
+                                                        }
+                        		    	                ex.printStackTrace();
+                        		    	                showErrorDialog("Failed to play sound.", ex);
+                        		    	            }
+                        		                } catch (SQLException e1) {
+                        						e1.printStackTrace();
+                        						try {
+
+                                                    File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                                                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                                    Clip clip = AudioSystem.getClip();
+                                                    clip.open(audioStream);
+
+                                                    clip.start();
+                                                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                                    ex1.printStackTrace();
+                                                    showErrorDialog("Failed to play sound.", ex1);
+                                                }
+                        						JOptionPane.showMessageDialog(frame, 
+                        		                        "        An error occurred \n Nothing has been entered!  \n ", 
+                        		                        "Error!", JOptionPane.ERROR_MESSAGE,resizedIcon30);
+                        						try {
+
+                                                    File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                                    Clip clip = AudioSystem.getClip();
+                                                    clip.open(audioStream);
+
+                                                    clip.start();
+                                                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                                    ex1.printStackTrace();
+                                                    showErrorDialog("Failed to play sound.", ex1);
+                                                }
+                        		                }
+                        					}
+                        		        };
+                        		        worker.execute();
+                                    } else {
+                                    	try {
+
+                                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                            Clip clip = AudioSystem.getClip();
+                                            clip.open(audioStream);
+
+                                            clip.start();
+                                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                            ex.printStackTrace();
+                                            showErrorDialog("Failed to play sound.", ex);
+                                        }
+                                    }
+                    		     }
+
+                    else if(selectedItem == "Download"){
+                    	try {
+                    		String query = "SELECT * FROM patient_details";
+                            PreparedStatement pstmt;
+							try {
+								pstmt = conn.prepareStatement(query);
+							
+                            ResultSet rs = pstmt.executeQuery();
+
+                            DefaultTableModel tableModel = new DefaultTableModel();
+                            tableModel.addColumn("Reg No");
+                            tableModel.addColumn("Name");
+                            tableModel.addColumn("Age");
+                            tableModel.addColumn("Gender");
+                            tableModel.addColumn("Date of Birth");
+                            tableModel.addColumn("Phone.No");
+                            tableModel.addColumn("Weight");
+                            tableModel.addColumn("Height");
+                            tableModel.addColumn("Blood Pressure");
+                            tableModel.addColumn("Blood Sugar");
+                            tableModel.addColumn("Allergies");
+                            tableModel.addColumn("Address");
+
+                            while (rs.next()) {
+                                String regNo = rs.getString("reg_no");
+                                String name = rs.getString("name");
+                                String Age = rs.getString("age");
+                                String Gender = rs.getString("gender");
+                                String dob = rs.getString("dob");
+                                String ph_no = rs.getString("ph_no");
+                                String weight = rs.getString("weight");
+                                String height = rs.getString("height");
+                                String bloodPressure = rs.getString("blood_pressure");
+                                String bloodSugar = rs.getString("blood_sugar");
+                                String Allergies = rs.getString("allergies");
+                                String Address = rs.getString("address");
+
+                                
+                                
+                                tableModel.addRow(new Object[] { regNo, name, Age ,Gender, dob, ph_no, weight, height, bloodPressure, bloodSugar, Allergies , Address });
+                                
+                                JTable dataTable = new JTable(tableModel);
+                                dataTable2 = dataTable;
+                            
+                            }
+							} catch (SQLException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+
+                            
+                            
+                    		boolean complete = dataTable2.print();
+							if (complete) {
+							   
+							}
+                        } catch (PrinterException pe) {
+                        	try {
+
+                                File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                Clip clip = AudioSystem.getClip();
+                                clip.open(audioStream);
+
+                                clip.start();
+                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                ex1.printStackTrace();
+                                showErrorDialog("Failed to play sound.", ex1);
+                            }
+                            JOptionPane.showMessageDialog(null, "Printing Failed: " + pe.getMessage(), "Printer", JOptionPane.ERROR_MESSAGE,resizedIcon30);
+                            try {
+
+                                File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                Clip clip = AudioSystem.getClip();
+                                clip.open(audioStream);
+
+                                clip.start();
+                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                ex1.printStackTrace();
+                                showErrorDialog("Failed to play sound.", ex1);
+                            }
+                        }
+                    }
+                    }
+
+            });
+
+            comboBox.setBounds(420, 500, 150, 30); 
+            frame.add(comboBox);
+            exitButton.setForeground(Color.WHITE);
+        exitButton.setBackground(Color.RED);
+        exitButton.setBackground(Color.RED);
+        editButton.setBackground(Color.LIGHT_GRAY);
+        printButton.setBackground(Color.LIGHT_GRAY);
+        registerButton.setBackground(Color.LIGHT_GRAY);
+        comboBox.setBackground(Color.LIGHT_GRAY);
+
+        backgroundPanel.add(label);  
+        backgroundPanel.add(registerButton);
+        backgroundPanel.add(editButton);
+        backgroundPanel.add(printButton);
+        backgroundPanel.add(exitButton);
+        comboBox.setSelectedIndex(-1);
+        registerButton.addActionListener(new RegisterButtonListener());
+        editButton.addActionListener(new EditButtonListener());
+        printButton.addActionListener(new PrintButtonListener());
+        exitButton.addActionListener(new ExitButtonListener());
+         
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/patients", "fitness", "2006");
+        } catch (ClassNotFoundException e) {
+        	try {
+
+                File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioStream);
+
+                clip.start();
+            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                ex1.printStackTrace();
+                showErrorDialog("Failed to play sound.", ex1);
+            }
+            showErrorDialog("JDBC Driver not found.", e);
+            try {
+
+                File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioStream);
+
+                clip.start();
+            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                ex.printStackTrace();
+                showErrorDialog("Failed to play sound.", ex);
+            }
+        } catch (SQLException e) {
+            showErrorDialog("Database connection failed. Please check your credentials or database server.", e);
+            try {
+
+                File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioStream);
+
+                clip.start();
+            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                ex.printStackTrace();
+                showErrorDialog("Failed to play sound.", ex);
+            }
+        } catch (Exception e) {
+            showErrorDialog("An unexpected error occurred while connecting to the database.", e);
+            try {
+
+                File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioStream);
+
+                clip.start();
+            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                ex.printStackTrace();
+                showErrorDialog("Failed to play sound.", ex);
+            }
+        }
+
+        Timer animationTimer = new Timer(ANIMATION_DELAY-999999999, new ActionListener() {
+            int width = frame.getWidth();
+            int height = frame.getHeight();
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (width < 605 || height < 600) {
+                    width = Math.min(width + INCREMENT_SIZE, 605);
+                    height = Math.min(height + INCREMENT_SIZE, 600);
+                    frame.setSize(width, height);
+                    frame.setLocationRelativeTo(null); 
+                } else {
+
+                    ((Timer) e.getSource()).stop();
+                }
+            }
+        });
+
+        frame.setVisible(true);
+        animationTimer.start();
+
+    }
+
+    private void showErrorDialog(String message, Exception e) {
+    	try {
+
+            File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+
+            clip.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+            ex1.printStackTrace();
+            showErrorDialog("Failed to play sound.", ex1);
+        }
+        JOptionPane.showMessageDialog(frame, message + "\nError: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE,resizedIcon30);
+        e.printStackTrace(); 
+        try {
+
+            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+
+            clip.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+            ex.printStackTrace();
+            showErrorDialog("Failed to play sound.", ex);
+        }
+    }
+
+    private class RegisterButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+
+        	try {
+
+                File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioStream);
+
+                clip.start();
+            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                ex.printStackTrace();
+                showErrorDialog("Failed to play sound.", ex);
+            }
+        	class BackgroundPanel1 extends JPanel {
+                private Image backgroundImage1;
+
+                public BackgroundPanel1(String imagePath) {
+                    try {
+                        backgroundImage1 = ImageIO.read(new File(imagePath));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    g.drawImage(backgroundImage1, 0, 0, getWidth(), getHeight(), this);
+                }
+
+            }
+        	ImageIcon originalIcon2 = new ImageIcon("C:\\Users\\david\\Downloads\\3534124.png");
+            Image img2 = originalIcon2.getImage();
+            Image resizedImage2 = img2.getScaledInstance(60, 60, java.awt.Image.SCALE_SMOOTH);
+            ImageIcon resizedIcon2 = new ImageIcon(resizedImage2);
+
+            ImageIcon originalIcon5 = new ImageIcon("C:\\Users\\david\\Downloads\\3817694.png");
+            Image img5 = originalIcon5.getImage();
+            Image resizedImage5 = img5.getScaledInstance(60, 60, java.awt.Image.SCALE_SMOOTH);
+            ImageIcon resizedIcon5 = new ImageIcon(resizedImage5);
+
+            ImageIcon imag9=new ImageIcon("C:\\Users\\david\\Downloads\\1729707084098.png");
+            Image image9 = imag9.getImage();
+            Image resizedImage9 = image9.getScaledInstance(30, 30, java.awt.Image.SCALE_SMOOTH);
+            ImageIcon resizedIcon9 = new ImageIcon(resizedImage9);
+
+            ImageIcon imag10=new ImageIcon("C:\\Users\\david\\Downloads\\1729707123089.png");
+            Image image10 = imag10.getImage();
+            Image resizedImage10 = image10.getScaledInstance(30, 30, java.awt.Image.SCALE_SMOOTH);
+            ImageIcon resizedIcon10 = new ImageIcon(resizedImage10);
+
+        	JFrame frame = new JFrame("Patient Tracker");
+        	ImageIcon icon = new ImageIcon("C:\\Users\\david\\OneDrive\\Pictures\\Screenshots\\Screenshot 2024-10-19 214849.png");
+            frame.setIconImage(icon.getImage());
+            BackgroundPanel1 backgroundPanel1 = new BackgroundPanel1("C:\\Users\\david\\Downloads\\surgical-item.jpg");
+            backgroundPanel1.setLayout(null);
+            frame.setContentPane(backgroundPanel1);
+            JLabel label1 = new JLabel("REGISTER");
+            label1.setForeground(Color.white);
+            label1.setFont(new Font("Times New Roman", Font.BOLD, 45));
+            label1.setBounds(240, 20, 1000, 40);
+            retry = new JButton("Retry",resizedIcon5);
+            retry.setFont(new Font("Times New Roman", Font.ITALIC, 20));
+            backgroundPanel1.add(label1);
+            Integer[] days = new Integer[31];
+            for (int i = 1; i <= 31; i++) {
+                days[i - 1] = i;
+            }
+            JComboBox<Integer> dayComboBox = new JComboBox<>(days);
+            String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+            JComboBox<String> monthComboBox = new JComboBox<>(months);
+            Integer[] years = new Integer[100];
+            int currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+            for (int i = 0; i < 100; i++) {
+                years[i] = currentYear - i;
+            }
+            JComboBox<Integer> yearComboBox = new JComboBox<>(years);
+
+            monthComboBox.setSelectedIndex(-1);
+            yearComboBox.setSelectedIndex(-1);
+            dayComboBox.setSelectedIndex(-1);
+            JLabel reg=new JLabel("Reg No:");
+            JLabel name=new JLabel("Name:");
+            JLabel Age=new JLabel("Age:");
+            JLabel genderLabel = new JLabel("Select Gender:");
+            JLabel dob=new JLabel("Date of birth:");
+            JLabel ph_no=new JLabel("Phone no:");
+            JLabel weight=new JLabel("Weight:");
+            JLabel height=new JLabel("Height:");
+            JLabel bloodPressure=new JLabel("Blood Pressure:");
+            JLabel BloodSugar=new JLabel("Blood Sugar:");
+            JLabel Allergies=new JLabel("Allergies:");
+            JLabel Address=new JLabel("Address:");
+            registerButton1 = new JButton("Tal\nly",resizedIcon2);
+            registerButton1.setFont(new Font("Times New Roman", Font.ITALIC, 20));
+            JRadioButton maleButton = new JRadioButton("Male",resizedIcon9);
+            JRadioButton femaleButton = new JRadioButton("Female",resizedIcon10);
+            JRadioButton otherButton = new JRadioButton("Other");
+            regNoField.setBounds(300, 100, 300, 30);
+            nameField.setBounds(300, 150, 300, 30);
+            ageField.setBounds(300, 200, 300, 30);
+            maleButton.setBounds(300, 250, 100, 30);
+            femaleButton.setBounds(400, 250, 100, 30);
+            otherButton.setBounds(500, 250, 100, 30);
+            dayComboBox.setBounds(300, 300, 80, 30);
+            monthComboBox.setBounds(400, 300, 100, 30);
+            yearComboBox.setBounds(520, 300, 80, 30);
+            ph_noField.setBounds(300, 350, 300, 30);
+            weightField.setBounds(300, 400, 300, 30);
+            heightField.setBounds(300, 450, 300, 30);
+            bloodPressureField.setBounds(300, 500, 300, 30);
+            bloodSugarField.setBounds(300, 550, 300, 30);
+            allergiesField.setBounds(300, 600, 300, 30);
+            addressField.setBounds(300, 650, 300, 50);
+            reg.setBounds(100, 100, 300, 30);
+            name.setBounds(100, 150, 300, 30);
+            Age.setBounds(100, 200, 300, 30);
+            genderLabel.setBounds(100, 250, 300, 30);
+            dob.setBounds(100, 300, 100, 30);
+            ph_no.setBounds(100, 350, 300, 30);
+            weight.setBounds(100, 400, 300, 30);
+            height.setBounds(100, 450, 300, 30);
+            bloodPressure.setBounds(100, 500, 300, 30);
+            BloodSugar.setBounds(100, 550, 300, 30);
+            Allergies.setBounds(100, 600, 300, 30);
+            Address.setBounds(100, 650, 300, 30);
+            registerButton1.setBounds(150, 750, 150, 60);
+            retry.setBounds(350, 750 , 150, 60);
+            reg.setForeground(Color.WHITE);
+            name.setForeground(Color.WHITE);
+            Age.setForeground(Color.WHITE);
+            genderLabel.setForeground(Color.WHITE);
+            dob.setForeground(Color.WHITE);
+            ph_no.setForeground(Color.WHITE);
+            weight.setForeground(Color.WHITE);
+            height.setForeground(Color.WHITE);
+            bloodPressure.setForeground(Color.WHITE);
+            BloodSugar.setForeground(Color.WHITE);
+            Allergies.setForeground(Color.WHITE);
+            Address.setForeground(Color.WHITE);
+
+            backgroundPanel1.add(reg);
+            backgroundPanel1.add(regNoField);
+            backgroundPanel1.add(name);
+            backgroundPanel1.add(nameField);
+            backgroundPanel1.add(Age);
+            backgroundPanel1.add(ageField);
+            backgroundPanel1.add(genderLabel);
+            backgroundPanel1.add(maleButton);
+            backgroundPanel1.add(femaleButton);
+            backgroundPanel1.add(otherButton);
+            backgroundPanel1.add(dob);
+            backgroundPanel1.add(dayComboBox);
+            backgroundPanel1.add(monthComboBox);
+            backgroundPanel1.add(yearComboBox);
+            backgroundPanel1.add(ph_no);
+            backgroundPanel1.add(ph_noField);
+            backgroundPanel1.add(weight);
+            backgroundPanel1.add(weightField);
+            backgroundPanel1.add(height);
+            backgroundPanel1.add(heightField);
+            backgroundPanel1.add(bloodPressure);
+            backgroundPanel1.add(bloodPressureField);
+            backgroundPanel1.add(BloodSugar);
+            backgroundPanel1.add(bloodSugarField);
+            backgroundPanel1.add(Allergies);
+            backgroundPanel1.add(allergiesField);
+            backgroundPanel1.add(Address);
+            backgroundPanel1.add(addressField);
+            backgroundPanel1.add(registerButton1);
+            backgroundPanel1.add(retry);
+            maleButton.setBackground(Color.LIGHT_GRAY);
+            femaleButton.setBackground(Color.LIGHT_GRAY);
+            otherButton.setBackground(Color.LIGHT_GRAY);
+            dayComboBox.setBackground(Color.LIGHT_GRAY);
+            monthComboBox.setBackground(Color.LIGHT_GRAY);
+            yearComboBox.setBackground(Color.LIGHT_GRAY);
+            regNoField.setBackground(Color.LIGHT_GRAY);
+            nameField.setBackground(Color.LIGHT_GRAY);
+            ph_noField.setBackground(Color.LIGHT_GRAY);
+            ageField.setBackground(Color.LIGHT_GRAY);
+            weightField.setBackground(Color.LIGHT_GRAY);
+            heightField.setBackground(Color.LIGHT_GRAY);
+            bloodPressureField.setBackground(Color.LIGHT_GRAY);
+            bloodSugarField.setBackground(Color.LIGHT_GRAY);
+            allergiesField.setBackground(Color.LIGHT_GRAY);
+            addressField.setBackground(Color.LIGHT_GRAY);
+            registerButton1.setBackground(Color.LIGHT_GRAY);
+            retry.setBackground(Color.LIGHT_GRAY);
+            closeButton = new JButton("Close");
+            closeButton.setBackground(Color.RED);
+            closeButton.setForeground(Color.WHITE);
+            closeButton.setBounds(595, 810 , 100, 30);
+            closeButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                	try {
+
+                        File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(audioStream);
+
+                        clip.start();
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        ex.printStackTrace();
+                        showErrorDialog("Failed to play sound.", ex);
+                    }
+                	try {
+
+                        File soundFile = new File("C:\\Users\\david\\Downloads\\exit.wav");
+                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(audioStream);
+
+                        clip.start();
+                        try {
+        					Thread.sleep(500);
+        				} catch (InterruptedException e1) {
+        					e1.printStackTrace();
+        				}
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        ex.printStackTrace();
+                        showErrorDialog("Failed to play sound.", ex);
+                        try {
+
+                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                            Clip clip = AudioSystem.getClip();
+                            clip.open(audioStream);
+
+                            clip.start();
+                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                            ex1.printStackTrace();
+                            showErrorDialog("Failed to play sound.", ex1);
+                        }
+                    }
+                	frame.dispose();
+                    }
+                });
+            backgroundPanel1.add(closeButton);
+
+            ButtonGroup genderGroup = new ButtonGroup();
+            genderGroup.add(maleButton);
+            genderGroup.add(femaleButton);
+            genderGroup.add(otherButton);
+            maleButton.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent e) {
+                    if (maleButton.isSelected()) {
+                    	maleButton.setForeground(Color.WHITE);
+                        maleButton.setBackground(Color.BLUE); 
+                    } else {
+                        maleButton.setBackground(Color.LIGHT_GRAY); 
+                        maleButton.setForeground(Color.BLACK);
+                    }
+                }
+            });
+
+            femaleButton.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent e) {
+                    if (femaleButton.isSelected()) {
+                    	femaleButton.setForeground(Color.WHITE);
+                        femaleButton.setBackground(Color.PINK);
+                    } else {
+                    	femaleButton.setBackground(Color.LIGHT_GRAY); 
+                    	femaleButton.setForeground(Color.BLACK);
+                    }
+                }
+            });
+
+            otherButton.addItemListener(new ItemListener() {
+            	public void itemStateChanged(ItemEvent e) {
+                    if (otherButton.isSelected()) {
+                    	otherButton.setForeground(Color.WHITE);
+                        otherButton.setBackground(Color.CYAN);
+                    } else {
+                    	otherButton.setBackground(Color.LIGHT_GRAY); 
+                    	otherButton.setForeground(Color.BLACK);
+                    }
+                }
+            });
+
+            frame.add(maleButton);
+            frame.add(femaleButton);
+            frame.add(otherButton);
+            retry.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                	try {
+
+                        File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(audioStream);
+
+                        clip.start();
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        ex.printStackTrace();
+                        showErrorDialog("Failed to play sound.", ex);
+
+                    }
+                	regNoField.setText("");
+                	nameField.setText("");
+                	ageField.setText("");
+                	ph_noField.setText("");
+                    weightField.setText("");
+                    heightField.setText("");
+                    bloodPressureField.setText("");
+                    bloodSugarField.setText("");
+                    allergiesField.setText("");
+                    addressField.setText("");
+                    genderGroup.clearSelection();
+                    monthComboBox.setSelectedIndex(-1);
+                    yearComboBox.setSelectedIndex(-1);
+                    dayComboBox.setSelectedIndex(-1);
+                }
+            });
+            registerButton1.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                	try {
+
+                        File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(audioStream);
+
+                        clip.start();
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        ex.printStackTrace();
+                        showErrorDialog("Failed to play sound.", ex);
+                    }
+
+                	String regNo = regNoField.getText();
+                    String Name = nameField.getText();
+                    String Age = ageField.getText();
+                    String ph_no = ph_noField.getText();
+                    String Weight = weightField.getText();
+                    String Height = heightField.getText();
+                    String BloodPressure = bloodPressureField.getText();
+                    String bloodSugar = bloodSugarField.getText();
+                    String Allergies = allergiesField.getText();
+                    String Address = addressField.getText();
+                	try {
+                		if (regNo.isEmpty() || Name.isEmpty() || Age.isEmpty() || ph_no.isEmpty() || Weight.isEmpty() || Height.isEmpty() || BloodPressure.isEmpty() || bloodSugar.isEmpty() || Allergies.isEmpty()) { 
+                        	try {
+
+                                File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                Clip clip = AudioSystem.getClip();
+                                clip.open(audioStream);
+
+                                clip.start();
+                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                ex1.printStackTrace();
+                                showErrorDialog("Failed to play sound.", ex1);
+                            }
+                    		JOptionPane.showMessageDialog(frame, 
+                                    "        An error occurred \n Nothing has been entered!  \n ", 
+                                    "Error!", JOptionPane.ERROR_MESSAGE,resizedIcon30);
+                			try {
+
+                                File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                Clip clip = AudioSystem.getClip();
+                                clip.open(audioStream);
+
+                                clip.start();
+                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                ex1.printStackTrace();
+                                showErrorDialog("Failed to play sound.", ex1);
+                            }
+                        }
+                        else {
+                        	int day = (int) dayComboBox.getSelectedItem();
+                            String month = (String) monthComboBox.getSelectedItem();
+                            int year = (int) yearComboBox.getSelectedItem();
+
+                            String gender = "";
+                            if (maleButton.isSelected()) {
+                                gender = "Male";
+                            } else if (femaleButton.isSelected()) {
+                                gender = "Female";
+                            } else if (otherButton.isSelected()) {
+                                gender = "Other";
+                            }
+
+                            int monthNum = 1; 
+                            for (int i = 0; i < months.length; i++) {
+                                if (month.equals(months[i])) {
+                                    monthNum = i + 1;
+                                    break;
+                                }
+                            }
+
+                            String dob = String.format("%04d-%02d-%02d", year, monthNum, day);
+                            System.out.println("DOB and Gender stored in database: " + dob + ", " + gender);
+                        	PreparedStatement pstmt = conn.prepareStatement("INSERT INTO patient_details (reg_no, name, age, gender,dob,ph_no, weight, "
+                            		+ "height, blood_pressure, blood_sugar, allergies , address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                            pstmt.setString(1, regNo);
+                            pstmt.setString(2, Name);
+                            pstmt.setString(3, Age);
+                            pstmt.setString(4, gender);
+                            pstmt.setString(5, dob);
+                            pstmt.setString(6, ph_no);
+                            pstmt.setString(7, Weight);
+                            pstmt.setString(8, Height);
+                            pstmt.setString(9, BloodPressure);
+                            pstmt.setString(10, bloodSugar);
+                            pstmt.setString(11, Allergies);
+                            pstmt.setString(12, Address);
+                            pstmt.executeUpdate();
+
+                            try {
+
+                                File soundFile = new File("C:\\Users\\david\\Downloads\\Level Up Sound.wav");
+                                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                Clip clip = AudioSystem.getClip();
+                                clip.open(audioStream);
+
+                                clip.start();
+                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                ex1.printStackTrace();
+                                showErrorDialog("Failed to play sound.", ex1);
+                            }
+                            JOptionPane.showMessageDialog(frame, "Patient registered"," successfully!",JOptionPane.INFORMATION_MESSAGE,resizedIcon40);
+                            try {
+
+                                File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                Clip clip = AudioSystem.getClip();
+                                clip.open(audioStream);
+
+                                clip.start();
+                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                ex1.printStackTrace();
+                                showErrorDialog("Failed to play sound.", ex1);
+                            }
+
+                            regNoField.setText("");
+                        	nameField.setText("");
+                        	ageField.setText("");
+                        	ph_noField.setText("");
+                            weightField.setText("");
+                            heightField.setText("");
+                            bloodPressureField.setText("");
+                            bloodSugarField.setText("");
+                            allergiesField.setText("");
+                            addressField.setText("");
+                            genderGroup.clearSelection();
+                            monthComboBox.setSelectedIndex(-1);
+                            yearComboBox.setSelectedIndex(-1);
+                            dayComboBox.setSelectedIndex(-1);
+                        }
+                    } catch (Exception ex) {
+                        System.out.println("Error registering patient: " + ex.getMessage());
+                    }
+                }
+            });
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.setSize(100, 100);
+            Timer animationTimer = new Timer(ANIMATION_DELAY-999999999, new ActionListener() {
+                int width = frame.getWidth();
+                int height = frame.getHeight();
+                int w=750;
+                int h=900;
+                int x =230; 
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (width < w || height < h) {
+                        width = Math.min(width + INCREMENT_SIZE, w);
+                        height = Math.min(height + INCREMENT_SIZE, h);
+                        frame.setSize(width, height);
+                        frame.setLocation(x, 0);
+                    } else {
+                        ((Timer) e.getSource()).stop();
+                    }
+                }
+            });
+            frame.setVisible(true);
+            animationTimer.start();
+
+        }
+    }
+
+    private class EditButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+        	try {
+
+                File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioStream);
+
+                clip.start();
+            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                ex.printStackTrace();
+                showErrorDialog("Failed to play sound.", ex);
+            }
+        	class BackgroundPanel2 extends JPanel {
+                private Image backgroundImage2;
+
+                public BackgroundPanel2(String imagePath) {
+                    try {
+                        backgroundImage2 = ImageIO.read(new File(imagePath));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    g.drawImage(backgroundImage2, 0, 0, getWidth(), getHeight(), this);
+                }
+            }
+        	JFrame frame1 = new JFrame("Patient Tracker");
+        	frame1.setSize(100, 100); 
+
+        	ImageIcon icon = new ImageIcon("C:\\Users\\david\\Downloads\\102647.png");
+            frame1.setIconImage(icon.getImage());
+            BackgroundPanel2 backgroundPanel2 = new BackgroundPanel2("C:\\Users\\david\\Downloads\\surgical-item.jpg");
+            backgroundPanel2.setLayout(null);
+            frame1.setContentPane(backgroundPanel2);
+            ImageIcon originalIcon2 = new ImageIcon("C:\\Users\\david\\Downloads\\102647.png");
+            Image img2 = originalIcon2.getImage();
+            Image resizedImage2 = img2.getScaledInstance(60, 60, java.awt.Image.SCALE_SMOOTH);
+            ImageIcon resizedIcon2 = new ImageIcon(resizedImage2);
+
+            ImageIcon originalIcon5 = new ImageIcon("C:\\Users\\david\\Downloads\\3817694.png");
+            Image img5 = originalIcon5.getImage();
+            Image resizedImage5 = img5.getScaledInstance(60, 60, java.awt.Image.SCALE_SMOOTH);
+            ImageIcon resizedIcon5 = new ImageIcon(resizedImage5);
+            ShadowLabel label1 = new ShadowLabel("EDIT DETAILS");
+            label1.setBounds(200, 20, 1000, 60);
+            label1.setFont(new Font("Times New Roman", Font.BOLD, 45));
+            label1.setForeground(Color.WHITE);  
+            label1.setShadowColor(Color.BLACK);  
+            label1.setShadowOffset(3,3); 
+            retry = new JButton("Retry",resizedIcon5);
+            retry.setFont(new Font("Times New Roman", Font.ITALIC, 20));
+            backgroundPanel2.add(label1);
+            JLabel name=new JLabel("Name :");
+            registerButton1 = new JButton("Edit",resizedIcon2);
+            registerButton1.setFont(new Font("Times New Roman", Font.ITALIC, 20));
+            nameField1 = new JTextField();
+            nameField1.setBounds(300, 100, 300, 30);
+            name.setBounds(100, 100, 300, 30);
+            registerButton1.setBounds(150, 200, 150, 60);
+            retry.setBounds(350, 200 , 150, 60);
+            name.setForeground(Color.WHITE);
+            backgroundPanel2.add(name);
+            backgroundPanel2.add(nameField1);
+            backgroundPanel2.add(registerButton1);
+            backgroundPanel2.add(retry);
+            closeButton = new JButton("Close");
+            closeButton.setBackground(Color.RED);
+            closeButton.setForeground(Color.WHITE);
+            closeButton.setBounds(550, 300 , 100, 30);
+            nameField1.setBackground(Color.LIGHT_GRAY);
+            registerButton1.setBackground(Color.LIGHT_GRAY);
+            retry.setBackground(Color.LIGHT_GRAY);
+            closeButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                	try {
+
+                        File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(audioStream);
+
+                        clip.start();
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        ex.printStackTrace();
+                        showErrorDialog("Failed to play sound.", ex);
+                    }
+                	try {
+
+                        File soundFile = new File("C:\\Users\\david\\Downloads\\exit.wav");
+                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(audioStream);
+
+                        clip.start();
+                        try {
+        					Thread.sleep(500);
+        				} catch (InterruptedException e1) {
+        					e1.printStackTrace();
+        				}
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        ex.printStackTrace();
+                        showErrorDialog("Failed to play sound.", ex);
+                        try {
+
+                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                            Clip clip = AudioSystem.getClip();
+                            clip.open(audioStream);
+
+                            clip.start();
+                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                            ex1.printStackTrace();
+                            showErrorDialog("Failed to play sound.", ex1);
+                        }
+                    }
+                	frame1.dispose();
+                    }
+                });
+            backgroundPanel2.add(closeButton);
+            frame1.setVisible(true);
+            retry.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                	try {
+
+                        File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(audioStream);
+
+                        clip.start();
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        ex.printStackTrace();
+                        showErrorDialog("Failed to play sound.", ex);
+                    }
+                	nameField1.setText("");
+                }
+            });
+            registerButton1.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                	try {
+
+                        File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(audioStream);
+
+                        clip.start();
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        ex.printStackTrace();
+                        showErrorDialog("Failed to play sound.", ex);
+                    }
+                	String name = nameField1.getText();
+                	if (name.isEmpty() ) {                  
+                		try {
+
+                            File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                            Clip clip = AudioSystem.getClip();
+                            clip.open(audioStream);
+
+                            clip.start();
+                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                            ex1.printStackTrace();
+                            showErrorDialog("Failed to play sound.", ex1);
+                        }
+
+            			JOptionPane.showMessageDialog(frame, 
+                                "        An error occurred \n Nothing has been entered!  \n ", 
+                                "Error!", JOptionPane.ERROR_MESSAGE,resizedIcon30);
+            			try {
+
+                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                            Clip clip = AudioSystem.getClip();
+                            clip.open(audioStream);
+
+                            clip.start();
+                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                            ex1.printStackTrace();
+                            showErrorDialog("Failed to play sound.", ex1);
+                        }
+                    }
+                    else {
+                    	try {
+                    		PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM patient_details WHERE name = ?");
+                            pstmt.setString(1, name);
+                            ResultSet rs = pstmt.executeQuery();
+                            class BackgroundPanel1 extends JPanel {
+                                private Image backgroundPanel1;
+
+                                public BackgroundPanel1(String imagePath) {
+                                    try {
+                                    	backgroundPanel1 = ImageIO.read(new File(imagePath));
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                @Override
+                                protected void paintComponent(Graphics g) {
+                                    super.paintComponent(g);
+                                    g.drawImage(backgroundPanel1, 0, 0, getWidth(), getHeight(), this);
+                                }
+                            }
+                            if (rs.next()) {
+                            	ImageIcon originalIcon2 = new ImageIcon("C:\\Users\\david\\Downloads\\102647.png");
+                                Image img2 = originalIcon2.getImage();
+                                Image resizedImage2 = img2.getScaledInstance(60, 60, java.awt.Image.SCALE_SMOOTH);
+                                ImageIcon resizedIcon2 = new ImageIcon(resizedImage2);
+
+                                ImageIcon originalIcon5 = new ImageIcon("C:\\Users\\david\\Downloads\\3817694.png");
+                                Image img5 = originalIcon5.getImage();
+                                Image resizedImage5 = img5.getScaledInstance(60, 60, java.awt.Image.SCALE_SMOOTH);
+                                ImageIcon resizedIcon5 = new ImageIcon(resizedImage5);
+
+                            	ImageIcon imag9=new ImageIcon("C:\\Users\\david\\Downloads\\1729707084098.png");
+                                Image image9 = imag9.getImage();
+                                Image resizedImage9 = image9.getScaledInstance(30, 30, java.awt.Image.SCALE_SMOOTH);
+                                ImageIcon resizedIcon9 = new ImageIcon(resizedImage9);
+
+                                ImageIcon imag10=new ImageIcon("C:\\Users\\david\\Downloads\\1729707123089.png");
+                                Image image10 = imag10.getImage();
+                                Image resizedImage10 = image10.getScaledInstance(30, 30, java.awt.Image.SCALE_SMOOTH);
+                                ImageIcon resizedIcon10 = new ImageIcon(resizedImage10);
+                		JFrame frame = new JFrame("Patient Tracker");
+                		frame.setSize(100, 100); 
+                		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); 
+
+                		ImageIcon icon = new ImageIcon("C:\\Users\\david\\Downloads\\102647.png");
+                        frame.setIconImage(icon.getImage());
+                		BackgroundPanel1 backgroundPanel1 = new BackgroundPanel1("C:\\Users\\david\\Downloads\\surgical-item.jpg");
+                        backgroundPanel1.setLayout(null);
+                        frame.setContentPane(backgroundPanel1);
+                        JLabel label1 = new JLabel("REGISTER");
+                        label1.setForeground(Color.white);
+                        label1.setFont(new Font("Times New Roman", Font.BOLD, 45));
+                        label1.setBounds(240, 20, 1000, 40);
+                        retry = new JButton("Retry",resizedIcon5);
+                        retry.setFont(new Font("Times New Roman", Font.ITALIC, 20));
+                        backgroundPanel1.add(label1);
+                        Integer[] days = new Integer[31];
+                        for (int i = 1; i <= 31; i++) {
+                            days[i - 1] = i;
+                        }
+                        JComboBox<Integer> dayComboBox = new JComboBox<>(days);
+                        String[] months = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+                        JComboBox<String> monthComboBox = new JComboBox<>(months);
+                        Integer[] years = new Integer[100];
+                        int currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+                        for (int i = 0; i < 100; i++) {
+                            years[i] = currentYear - i;
+                        }
+                        JComboBox<Integer> yearComboBox = new JComboBox<>(years);
+                        JLabel reg=new JLabel("Reg No:");
+                        JLabel Name=new JLabel("Name:");
+                        JLabel Age=new JLabel("Age:");
+                        JLabel genderLabel = new JLabel("Select Gender:");
+                        JLabel dob=new JLabel("Date of birth:");
+                        JLabel ph_no=new JLabel("Phone no:");
+                        JLabel weight=new JLabel("Weight:");
+                        JLabel height=new JLabel("Height:");
+                        JLabel bloodPressure=new JLabel("Blood Pressure:");
+                        JLabel BloodSugar=new JLabel("Blood Sugar:");
+                        JLabel Allergies=new JLabel("Allergies:");
+                        JLabel Address=new JLabel("Address:");
+                        registerButton1 = new JButton("Tally",resizedIcon2);
+                        registerButton1.setFont(new Font("Times New Roman", Font.ITALIC, 20));
+                        JRadioButton maleButton = new JRadioButton("Male",resizedIcon9);
+                        JRadioButton femaleButton = new JRadioButton("Female",resizedIcon10);
+                        JRadioButton otherButton = new JRadioButton("Other");
+                        regNoField.setBounds(300, 100, 300, 30);
+                        nameField.setBounds(300, 150, 300, 30);
+                        ageField.setBounds(300, 200, 300, 30);
+                        maleButton.setBounds(300, 250, 100, 30);
+                        femaleButton.setBounds(400, 250, 100, 30);
+                        otherButton.setBounds(500, 250, 100, 30);
+                        dayComboBox.setBounds(300, 300, 80, 30);
+                        monthComboBox.setBounds(400, 300, 100, 30);
+                        yearComboBox.setBounds(520, 300, 80, 30);
+                        ph_noField.setBounds(300, 350, 300, 30);
+                        weightField.setBounds(300, 400, 300, 30);
+                        heightField.setBounds(300, 450, 300, 30);
+                        bloodPressureField.setBounds(300, 500, 300, 30);
+                        bloodSugarField.setBounds(300, 550, 300, 30);
+                        allergiesField.setBounds(300, 600, 300, 30);
+                        addressField.setBounds(300, 650, 300, 50);
+                        reg.setBounds(100, 100, 300, 30);
+                        Name.setBounds(100, 150, 300, 30);
+                        Age.setBounds(100, 200, 300, 30);
+                        genderLabel.setBounds(100, 250, 300, 30);
+                        dob.setBounds(100, 300, 100, 30);
+                        ph_no.setBounds(100, 350, 300, 30);
+                        weight.setBounds(100, 400, 300, 30);
+                        height.setBounds(100, 450, 300, 30);
+                        bloodPressure.setBounds(100, 500, 300, 30);
+                        BloodSugar.setBounds(100, 550, 300, 30);
+                        Allergies.setBounds(100, 600, 300, 30);
+                        Address.setBounds(100, 650, 300, 30);
+                        registerButton1.setBounds(150, 750, 150, 60);
+                        retry.setBounds(350, 750 , 150, 60);
+                        reg.setForeground(Color.WHITE);
+                        Name.setForeground(Color.WHITE);
+                        Age.setForeground(Color.WHITE);
+                        genderLabel.setForeground(Color.WHITE);
+                        dob.setForeground(Color.WHITE);
+                        ph_no.setForeground(Color.WHITE);
+                        weight.setForeground(Color.WHITE);
+                        height.setForeground(Color.WHITE);
+                        bloodPressure.setForeground(Color.WHITE);
+                        BloodSugar.setForeground(Color.WHITE);
+                        Allergies.setForeground(Color.WHITE);
+                        Address.setForeground(Color.WHITE);
+                        backgroundPanel1.add(reg);
+                        backgroundPanel1.add(regNoField);
+                        backgroundPanel1.add(Name);
+                        backgroundPanel1.add(nameField);
+                        backgroundPanel1.add(Age);
+                        backgroundPanel1.add(ageField);
+                        backgroundPanel1.add(genderLabel);
+                        backgroundPanel1.add(maleButton);
+                        backgroundPanel1.add(femaleButton);
+                        backgroundPanel1.add(otherButton);
+                        backgroundPanel1.add(dob);
+                        backgroundPanel1.add(dayComboBox);
+                        backgroundPanel1.add(monthComboBox);
+                        backgroundPanel1.add(yearComboBox);
+                        backgroundPanel1.add(ph_no);
+                        backgroundPanel1.add(ph_noField);
+                        backgroundPanel1.add(weight);
+                        backgroundPanel1.add(weightField);
+                        backgroundPanel1.add(height);
+                        backgroundPanel1.add(heightField);
+                        backgroundPanel1.add(bloodPressure);
+                        backgroundPanel1.add(bloodPressureField);
+                        backgroundPanel1.add(BloodSugar);
+                        backgroundPanel1.add(bloodSugarField);
+                        backgroundPanel1.add(Allergies);
+                        backgroundPanel1.add(allergiesField);
+                        backgroundPanel1.add(Address);
+                        backgroundPanel1.add(addressField);
+                        backgroundPanel1.add(registerButton1);
+                        backgroundPanel1.add(retry);
+                        maleButton.setBackground(Color.LIGHT_GRAY);
+                        femaleButton.setBackground(Color.LIGHT_GRAY);
+                        otherButton.setBackground(Color.LIGHT_GRAY);
+                        dayComboBox.setBackground(Color.LIGHT_GRAY);
+                        monthComboBox.setBackground(Color.LIGHT_GRAY);
+                        yearComboBox.setBackground(Color.LIGHT_GRAY);
+                        regNoField.setBackground(Color.LIGHT_GRAY);
+                        nameField.setBackground(Color.LIGHT_GRAY);
+                        ph_noField.setBackground(Color.LIGHT_GRAY);
+                        ageField.setBackground(Color.LIGHT_GRAY);
+                        weightField.setBackground(Color.LIGHT_GRAY);
+                        heightField.setBackground(Color.LIGHT_GRAY);
+                        bloodPressureField.setBackground(Color.LIGHT_GRAY);
+                        bloodSugarField.setBackground(Color.LIGHT_GRAY);
+                        allergiesField.setBackground(Color.LIGHT_GRAY);
+                        addressField.setBackground(Color.LIGHT_GRAY);
+                        registerButton1.setBackground(Color.LIGHT_GRAY);
+                        retry.setBackground(Color.LIGHT_GRAY);
+                        closeButton = new JButton("Close");
+                        closeButton.setBackground(Color.RED);
+                        closeButton.setForeground(Color.WHITE);
+                        closeButton.setBounds(595, 810 , 100, 30);
+                        maleButton.addItemListener(new ItemListener() {
+                        	public void itemStateChanged(ItemEvent e) {
+                                if (maleButton.isSelected()) {
+                                	maleButton.setForeground(Color.WHITE);
+                                    maleButton.setBackground(Color.BLUE); 
+
+                                } else {
+                                    maleButton.setBackground(Color.LIGHT_GRAY); 
+                                    maleButton.setForeground(Color.BLACK);
+                                }
+                            }
+                        });
+
+                        femaleButton.addItemListener(new ItemListener() {
+                        	public void itemStateChanged(ItemEvent e) {
+                                if (femaleButton.isSelected()) {
+                                	femaleButton.setForeground(Color.WHITE);
+                                    femaleButton.setBackground(Color.PINK);
+                                } else {
+                                	femaleButton.setBackground(Color.LIGHT_GRAY); 
+                                	femaleButton.setForeground(Color.BLACK);
+                                }
+                            }
+                        });
+
+                        otherButton.addItemListener(new ItemListener() {
+                            public void itemStateChanged(ItemEvent e) {
+                                if (otherButton.isSelected()) {
+                                	otherButton.setForeground(Color.WHITE);
+                                    otherButton.setBackground(Color.CYAN);
+                                } else {
+                                	otherButton.setBackground(Color.LIGHT_GRAY); 
+                                	otherButton.setForeground(Color.BLACK);
+                                }
+                            }
+                        });
+
+                        closeButton.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                            	try {
+
+                                    File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                    Clip clip = AudioSystem.getClip();
+                                    clip.open(audioStream);
+
+                                    clip.start();
+                                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                    ex.printStackTrace();
+                                    showErrorDialog("Failed to play sound.", ex);
+                                }
+                            	try {
+
+                                    File soundFile = new File("C:\\Users\\david\\Downloads\\exit.wav");
+                                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                    Clip clip = AudioSystem.getClip();
+                                    clip.open(audioStream);
+
+                                    clip.start();
+                                    try {
+                    					Thread.sleep(500);
+                    				} catch (InterruptedException e1) {
+                    					e1.printStackTrace();
+                    				}
+                                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                    ex.printStackTrace();
+                                    showErrorDialog("Failed to play sound.", ex);
+                                    try {
+
+                                        File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                        Clip clip = AudioSystem.getClip();
+                                        clip.open(audioStream);
+
+                                        clip.start();
+                                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                        ex1.printStackTrace();
+                                        showErrorDialog("Failed to play sound.", ex1);
+                                    }
+                                }
+                            	frame.dispose();
+                                }
+                            });
+                        backgroundPanel1.add(closeButton);
+
+                        ButtonGroup genderGroup = new ButtonGroup();
+                        genderGroup.add(maleButton);
+                        genderGroup.add(femaleButton);
+                        genderGroup.add(otherButton);
+                        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        frame.setSize(100, 100);
+                        Timer animationTimer = new Timer(ANIMATION_DELAY-999999999, new ActionListener() {
+                            int width = frame.getWidth();
+                            int height = frame.getHeight();
+                            int w=750;
+                            int h=900;
+                            int x =230; 
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                if (width < w || height < h) {
+                                    width = Math.min(width + INCREMENT_SIZE, w);
+                                    height = Math.min(height + INCREMENT_SIZE, h);
+                                    frame.setSize(width, height);
+                                    frame.setLocation(x, 0);
+                                } else {
+                                    ((Timer) e.getSource()).stop();
+                                }
+                            }
+                        });
+                        frame.setVisible(true);
+                        animationTimer.start();
+                        closeButton = new JButton("Close");
+                        closeButton.setBackground(Color.RED);
+                        closeButton.setForeground(Color.WHITE);
+                        closeButton.setBounds(595, 810 , 100, 30);
+                        closeButton.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                            	try {
+
+                                    File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                    Clip clip = AudioSystem.getClip();
+                                    clip.open(audioStream);
+
+                                    clip.start();
+                                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                    ex.printStackTrace();
+                                    showErrorDialog("Failed to play sound.", ex);
+                                }
+                            	try {
+
+                                    File soundFile = new File("C:\\Users\\david\\Downloads\\exit.wav");
+                                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                    Clip clip = AudioSystem.getClip();
+                                    clip.open(audioStream);
+
+                                    clip.start();
+                                    try {
+                    					Thread.sleep(500);
+                    				} catch (InterruptedException e1) {
+                    					e1.printStackTrace();
+                    				}
+                                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                    ex.printStackTrace();
+                                    showErrorDialog("Failed to play sound.", ex);
+                                    try {
+
+                                        File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                        Clip clip = AudioSystem.getClip();
+                                        clip.open(audioStream);
+
+                                        clip.start();
+                                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                        ex1.printStackTrace();
+                                        showErrorDialog("Failed to play sound.", ex1);
+                                    }
+                                }
+                            	frame.dispose();
+                                }
+                            });
+                        backgroundPanel1.add(closeButton);
+
+                    	try {
+                        retry.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                            	try {
+
+                                    File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                    Clip clip = AudioSystem.getClip();
+                                    clip.open(audioStream);
+
+                                    clip.start();
+                                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                    ex.printStackTrace();
+                                    showErrorDialog("Failed to play sound.", ex);
+                                }
+                                regNoField.setText("");
+                            	nameField.setText("");
+                            	ageField.setText("");
+                            	ph_noField.setText("");
+                                weightField.setText("");
+                                heightField.setText("");
+                                bloodPressureField.setText("");
+                                bloodSugarField.setText("");
+                                allergiesField.setText("");
+                                addressField.setText("");
+                                genderGroup.clearSelection();
+                                monthComboBox.setSelectedIndex(-1);
+                                yearComboBox.setSelectedIndex(-1);
+                                dayComboBox.setSelectedIndex(-1);
+                            }
+                        });
+
+                        registerButton1.addActionListener(new ActionListener() {
+                        	@Override
+
+                            public void actionPerformed(ActionEvent e) {
+                        		int day = (int) dayComboBox.getSelectedItem();
+                                String month = (String) monthComboBox.getSelectedItem();
+                                int year = (int) yearComboBox.getSelectedItem();
+
+                                String gender = "";
+                                if (maleButton.isSelected()) {
+                                    gender = "Male";
+                                } else if (femaleButton.isSelected()) {
+                                    gender = "Female";
+                                } else if (otherButton.isSelected()) {
+                                    gender = "Other";
+                                }
+
+                                int monthNum = 1; 
+                                for (int i = 0; i < months.length; i++) {
+                                    if (month.equals(months[i])) {
+                                        monthNum = i + 1;
+                                        break;
+                                    }
+                                }
+
+                        		try {
+
+                                    File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                    Clip clip = AudioSystem.getClip();
+                                    clip.open(audioStream);
+
+                                    clip.start();
+                                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                    ex.printStackTrace();
+                                    showErrorDialog("Failed to play sound.", ex);
+                                }
+                        		try {
+                            		if (name.isEmpty()) {   
+                            			try {
+
+                                            File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                            Clip clip = AudioSystem.getClip();
+                                            clip.open(audioStream);
+
+                                            clip.start();
+                                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                            ex1.printStackTrace();
+                                            showErrorDialog("Failed to play sound.", ex1);
+                                        }
+                            			JOptionPane.showMessageDialog(frame, 
+                                                "        An error occurred \n Nothing has been entered!  \n ", 
+                                                "Error!", JOptionPane.ERROR_MESSAGE,resizedIcon30);
+                            			try {
+
+                                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                            Clip clip = AudioSystem.getClip();
+                                            clip.open(audioStream);
+
+                                            clip.start();
+                                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                            ex1.printStackTrace();
+                                            showErrorDialog("Failed to play sound.", ex1);
+                                        }
+                                    }
+                                    else {
+                                        String dob = String.format("%04d-%02d-%02d", year, monthNum, day);
+                                        System.out.println("DOB and Gender stored in database: " + dob + ", " + gender);
+                                    	String regNo = regNoField.getText();
+                                        String Name = nameField.getText();
+                                        String Age = ageField.getText();
+                                        String ph_no = ph_noField.getText();
+                                        String Weight = weightField.getText();
+                                        String Height = heightField.getText();
+                                        String BloodPressure = bloodPressureField.getText();
+                                        String bloodSugar = bloodSugarField.getText();
+                                        String Allergies = allergiesField.getText();
+                                        String Address = addressField.getText();
+                                        if (regNo.isEmpty() || Name.isEmpty() || Age.isEmpty() || ph_no.isEmpty() || Weight.isEmpty() || Height.isEmpty() || BloodPressure.isEmpty() || bloodSugar.isEmpty() || Allergies.isEmpty()) { 
+                                        	try {
+
+                                                File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                                                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                                Clip clip = AudioSystem.getClip();
+                                                clip.open(audioStream);
+
+                                                clip.start();
+                                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                                ex1.printStackTrace();
+                                                showErrorDialog("Failed to play sound.", ex1);
+                                            }
+                                    		JOptionPane.showMessageDialog(frame, 
+                                                    "        An error occurred \n Nothing has been entered!  \n ", 
+                                                    "Error!", JOptionPane.ERROR_MESSAGE,resizedIcon30);
+                                			try {
+
+                                                File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                                Clip clip = AudioSystem.getClip();
+                                                clip.open(audioStream);
+
+                                                clip.start();
+                                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                                ex1.printStackTrace();
+                                                showErrorDialog("Failed to play sound.", ex1);
+                                            }
+                                        }
+                                    	else {
+                                            	 try {
+                                                 	PreparedStatement pstmt = conn.prepareStatement("UPDATE patient_details SET reg_no = ?, age = ?, gender = ?, "
+                                                     		+ "dob = ?, ph_no = ?, weight = ?, height = ?, blood_pressure = ?, blood_sugar = ?, allergies = ?, address = ?	WHERE name = ?");
+                                                 	pstmt.setString(1, regNo);
+                                                    pstmt.setString(2, Age);
+                                                    pstmt.setString(3, gender);
+                                                    pstmt.setString(4, dob);
+                                                    pstmt.setString(5, ph_no);
+                                                    pstmt.setString(6, Weight);
+                                                    pstmt.setString(7, Height);
+                                                    pstmt.setString(8, BloodPressure);
+                                                    pstmt.setString(9, bloodSugar);
+                                                    pstmt.setString(10, Allergies);
+                                                    pstmt.setString(11, Address);
+                                                    pstmt.setString(12, Name);
+                                                     pstmt.executeUpdate();
+                                                     JOptionPane.showMessageDialog(frame, "Patient details"," updated successfully!",JOptionPane.INFORMATION_MESSAGE,resizedIcon40);
+                                                     try {
+
+                                                         File soundFile = new File("C:\\Users\\david\\Downloads\\Level Up Sound.wav");
+                                                         AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                                         Clip clip = AudioSystem.getClip();
+                                                         clip.open(audioStream);
+
+                                                         clip.start();
+                                                     } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                                         ex1.printStackTrace();
+                                                         showErrorDialog("Failed to play sound.", ex1);
+                                                     }
+                                                    regNoField.setText("");
+                                                 	nameField.setText("");
+                                                	ageField.setText("");
+                                                	ph_noField.setText("");
+                                                    weightField.setText("");
+                                                    heightField.setText("");
+                                                    bloodPressureField.setText("");
+                                                    bloodSugarField.setText("");
+                                                    allergiesField.setText("");
+                                                    addressField.setText("");
+                                                    genderGroup.clearSelection();
+                                                    monthComboBox.setSelectedIndex(-1);
+                                                    yearComboBox.setSelectedIndex(-1);
+                                                    dayComboBox.setSelectedIndex(-1);
+
+                                 	} catch (Exception ex) {
+                                         System.out.println("Error updating patient details: " + ex.getMessage());
+                                         try {
+
+                                             File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                                             AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                             Clip clip = AudioSystem.getClip();
+                                             clip.open(audioStream);
+
+                                             clip.start();
+                                         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                             ex1.printStackTrace();
+                                             showErrorDialog("Failed to play sound.", ex1);
+                                         }
+                                         JOptionPane.showMessageDialog(frame, 
+                                                 "        An error occurred \n Nothing has been uptadated!  \n ", 
+                                                 "Error!", JOptionPane.ERROR_MESSAGE,resizedIcon30);
+                                         try {
+
+                                             File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                             AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                             Clip clip = AudioSystem.getClip();
+                                             clip.open(audioStream);
+
+                                             clip.start();
+                                         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                             ex1.printStackTrace();
+                                             showErrorDialog("Failed to play sound.", ex1);
+                                         }
+                                     }
+
+                                    }
+                                    }
+                        		}
+                                catch (Exception ex) {
+                                    System.out.println("Error printing patient details: " + ex.getMessage());
+                                    try {
+
+                                        File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                        Clip clip = AudioSystem.getClip();
+                                        clip.open(audioStream);
+
+                                        clip.start();
+                                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                        ex1.printStackTrace();
+                                        showErrorDialog("Failed to play sound.", ex1);
+                                    }
+                                	JOptionPane.showMessageDialog(frame, 
+                                            "        An error occurred \n Nothing has been printed!  \n ", 
+                                            "Error!", JOptionPane.ERROR_MESSAGE,resizedIcon30);
+                                	try {
+
+                                        File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                        Clip clip = AudioSystem.getClip();
+                                        clip.open(audioStream);
+
+                                        clip.start();
+                                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                        ex1.printStackTrace();
+                                        showErrorDialog("Failed to play sound.", ex1);
+                                    }
+                                }
+                    }
+                        });
+                    }catch (Exception ex) {
+                        System.out.println("Error updating patient details: " + ex.getMessage());
+                        try {
+
+                            File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                            Clip clip = AudioSystem.getClip();
+                            clip.open(audioStream);
+
+                            clip.start();
+                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                            ex1.printStackTrace();
+                            showErrorDialog("Failed to play sound.", ex1);
+                        }
+                        JOptionPane.showMessageDialog(frame, 
+                                "        An error occurred \n Nothing has been uptadated!  \n ", 
+                                "Error!", JOptionPane.ERROR_MESSAGE,resizedIcon30);
+                        try {
+
+                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                            Clip clip = AudioSystem.getClip();
+                            clip.open(audioStream);
+
+                            clip.start();
+                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                            ex1.printStackTrace();
+                            showErrorDialog("Failed to play sound.", ex1);
+                        }
+                    }
+                            } else {
+                                JOptionPane.showMessageDialog(frame, "No patient details found for reg no " + name);
+                                try {
+
+                                    File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                    Clip clip = AudioSystem.getClip();
+                                    clip.open(audioStream);
+
+                                    clip.start();
+                                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                    ex1.printStackTrace();
+                                    showErrorDialog("Failed to play sound.", ex1);
+                                }
+                            }
+                    }catch (Exception ex) {
+                        System.out.println("Error updating patient details: " + ex.getMessage());
+                        try {
+
+                            File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                            Clip clip = AudioSystem.getClip();
+                            clip.open(audioStream);
+
+                            clip.start();
+                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                            ex1.printStackTrace();
+                            showErrorDialog("Failed to play sound.", ex1);
+                        }
+                        JOptionPane.showMessageDialog(frame, 
+                                "        An error occurred \n Nothing has been uptadated!  \n ", 
+                                "Error!", JOptionPane.ERROR_MESSAGE,resizedIcon30);
+                        try {
+
+                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                            Clip clip = AudioSystem.getClip();
+                            clip.open(audioStream);
+
+                            clip.start();
+                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                            ex1.printStackTrace();
+                            showErrorDialog("Failed to play sound.", ex1);
+                        }
+                    }
+                    }
+                }
+            });
+            frame1.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame1.setSize(100, 100);
+            Timer animationTimer = new Timer(ANIMATION_DELAY-999999999, new ActionListener() {
+                int width = frame1.getWidth();
+                int height = frame1.getHeight();
+                int w=700;
+                int h=400;
+                int x =230; 
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (width < w || height < h) {
+                        width = Math.min(width + INCREMENT_SIZE, w);
+                        height = Math.min(height + INCREMENT_SIZE, h);
+                        frame1.setSize(width, height);
+                        frame1.setLocation(x, 200);
+                    } else {
+                        ((Timer) e.getSource()).stop();
+                    }
+                }
+            });
+            frame1.setVisible(true);
+            animationTimer.start();
+        }
+    }
+    private class PrintButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+        	try {
+
+                File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioStream);
+
+                clip.start();
+            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                ex.printStackTrace();
+                showErrorDialog("Failed to play sound.", ex);
+            }
+        	class BackgroundPanel1 extends JPanel {
+                private Image backgroundImage1;
+
+                public BackgroundPanel1(String imagePath) {
+                    try {
+                        backgroundImage1 = ImageIO.read(new File(imagePath));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        try {
+
+                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                            Clip clip = AudioSystem.getClip();
+                            clip.open(audioStream);
+
+                            clip.start();
+                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                            ex.printStackTrace();
+                            showErrorDialog("Failed to play sound.", ex);
+                        }
+                    }
+                }
+
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    g.drawImage(backgroundImage1, 0, 0, getWidth(), getHeight(), this);
+                }
+            }
+        	ImageIcon originalIcon2 = new ImageIcon("C:\\Users\\david\\Downloads\\813226.png");
+            Image img2 = originalIcon2.getImage();
+            Image resizedImage2 = img2.getScaledInstance(60, 60, java.awt.Image.SCALE_SMOOTH);
+            ImageIcon resizedIcon2 = new ImageIcon(resizedImage2);
+
+            ImageIcon originalIcon5 = new ImageIcon("C:\\Users\\david\\Downloads\\3817694.png");
+            Image img5 = originalIcon5.getImage();
+            Image resizedImage5 = img5.getScaledInstance(60, 60, java.awt.Image.SCALE_SMOOTH);
+            ImageIcon resizedIcon5 = new ImageIcon(resizedImage5);
+        	JFrame frame = new JFrame("Patient Tracker");
+        	frame.setSize(750, 400); 
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); 
+            frame.setLayout(null);
+            ImageIcon icon = new ImageIcon("C:\\Users\\david\\OneDrive\\Pictures\\Screenshots\\Screenshot 2024-10-19 214849.png");
+            frame.setIconImage(icon.getImage());
+            BackgroundPanel1 backgroundPanel = new BackgroundPanel1("C:\\Users\\david\\Downloads\\surgical-item.jpg");
+            backgroundPanel.setLayout(null);
+            frame.setContentPane(backgroundPanel);
+            JLabel label1 = new JLabel("PRINT DETAIL");
+            label1.setFont(new Font("Times New Roman", Font.BOLD, 45));
+            label1.setBounds(200, 20, 1000, 40);
+            retry = new JButton("Retry",resizedIcon5);
+            retry.setFont(new Font("Times New Roman", Font.ITALIC, 20));
+            backgroundPanel.add(label1);
+            JLabel name=new JLabel("Name:");
+            printButton1 = new JButton("Print",resizedIcon2);
+            printButton1.setFont(new Font("Times New Roman", Font.ITALIC, 20));
+            nameField.setBounds(300, 100, 300, 30);
+            name.setBounds(100, 100, 300, 30);
+            printButton1.setBounds(150, 200, 150, 60);
+            retry.setBounds(350, 200 , 150, 60);
+            backgroundPanel.add(name);
+            backgroundPanel.add(nameField);
+            backgroundPanel.add(printButton1);
+            backgroundPanel.add(retry);
+            name.setForeground(Color.white);
+            nameField.setBackground(Color.LIGHT_GRAY);
+            printButton1.setBackground(Color.LIGHT_GRAY);
+            retry.setBackground(Color.LIGHT_GRAY);
+            closeButton = new JButton("Close");
+            closeButton.setBackground(Color.RED);
+            closeButton.setForeground(Color.WHITE);
+            closeButton.setBounds(550, 300 , 100, 30);
+            closeButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                	try {
+
+                        File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(audioStream);
+
+                        clip.start();
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        ex.printStackTrace();
+                        showErrorDialog("Failed to play sound.", ex);
+                    }
+                	try {
+
+                        File soundFile = new File("C:\\Users\\david\\Downloads\\exit.wav");
+                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(audioStream);
+
+                        clip.start();
+                        try {
+        					Thread.sleep(500);
+        				} catch (InterruptedException e1) {
+        					e1.printStackTrace();
+        				}
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        ex.printStackTrace();
+                        showErrorDialog("Failed to play sound.", ex);
+                        try {
+
+                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                            Clip clip = AudioSystem.getClip();
+                            clip.open(audioStream);
+
+                            clip.start();
+                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                            ex1.printStackTrace();
+                            showErrorDialog("Failed to play sound.", ex1);
+                        }
+                    }
+                	frame.dispose();
+                    }
+                });
+            backgroundPanel.add(closeButton);
+            retry.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                	try {
+
+                        File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(audioStream);
+
+                        clip.start();
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        ex.printStackTrace();
+                        showErrorDialog("Failed to play sound.", ex);
+                    }
+                	nameField.setText("");
+                }
+            });
+            printButton1.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                	try {
+
+                        File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                        AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(audioStream);
+
+                        clip.start();
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                        ex.printStackTrace();
+                        showErrorDialog("Failed to play sound.", ex);
+                    }
+                	try {
+                		String name = nameField.getText();
+                		if (name.isEmpty()) {   
+                			try {
+
+                                File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                Clip clip = AudioSystem.getClip();
+                                clip.open(audioStream);
+
+                                clip.start();
+                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                                ex1.printStackTrace();
+                                showErrorDialog("Failed to play sound.", ex1);
+                            }
+                			JOptionPane.showMessageDialog(frame, 
+                                    "        An error occurred \n Nothing has been entered!  \n ", 
+                                    "Error!", JOptionPane.ERROR_MESSAGE,resizedIcon30);
+                			try {
+
+                                File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                                Clip clip = AudioSystem.getClip();
+                                clip.open(audioStream);
+
+                                clip.start();
+                            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                                ex.printStackTrace();
+                                showErrorDialog("Failed to play sound.", ex);
+                            }
+                        }
+                        else {
+                        	try {
+
+                                JFrame dataFrame = new JFrame("Patient Data");
+                                dataFrame.setSize(1000, 400);
+                                dataFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                                dataFrame.setLayout(new BorderLayout());
+                                ImageIcon icon = new ImageIcon("C:\\Users\\david\\OneDrive\\Pictures\\Screenshots\\Screenshot 2024-10-19 214849.png");
+                                dataFrame.setIconImage(icon.getImage());
+
+                                PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM patient_details WHERE name = ?");
+                                pstmt.setString(1, name);
+                                ResultSet rs = pstmt.executeQuery();
+
+                                DefaultTableModel tableModel = new DefaultTableModel();
+                                tableModel.addColumn("Reg No");
+                                tableModel.addColumn("Name");
+                                tableModel.addColumn("Age");
+                                tableModel.addColumn("Gender");
+                                tableModel.addColumn("Date of Birth");
+                                tableModel.addColumn("Phone.No");
+                                tableModel.addColumn("Weight");
+                                tableModel.addColumn("Height");
+                                tableModel.addColumn("Blood Pressure");
+                                tableModel.addColumn("Blood Sugar");
+                                tableModel.addColumn("Allergies");
+                                tableModel.addColumn("Address");
+
+                                while (rs.next()) {
+                                    String regNo = rs.getString("reg_no");
+                                    String Name = rs.getString("name");
+                                    String Age = rs.getString("age");
+                                    String Gender = rs.getString("gender");
+                                    String dob = rs.getString("dob");
+                                    String ph_no = rs.getString("ph_no");
+                                    String weight = rs.getString("weight");
+                                    String height = rs.getString("height");
+                                    String bloodPressure = rs.getString("blood_pressure");
+                                    String bloodSugar = rs.getString("blood_sugar");
+                                    String Allergies = rs.getString("allergies");
+                                    String Address = rs.getString("address");
+
+                                    tableModel.addRow(new Object[] { regNo, Name, Age ,Gender, dob, ph_no, weight, height, bloodPressure, bloodSugar, Allergies , Address });
+                                }
+
+                                JTable dataTable = new JTable(tableModel);
+                                dataTable1 = dataTable;
+
+                                JScrollPane scrollPane = new JScrollPane(dataTable);
+
+                                dataFrame.add(scrollPane, BorderLayout.CENTER);
+
+                                dataFrame.setLocationRelativeTo(null);
+                                dataFrame.setVisible(true);
+                            } catch (SQLException e1) {
+                                showErrorDialog("Failed to retrieve data from the database.", e1);
+                            }
+                                 nameField.setText("");
+                        }
+                	}
+                    catch (Exception ex) {
+                        System.out.println("Error printing patient details: " + ex.getMessage());
+                        try {
+
+                            File soundFile = new File("C:\\Users\\david\\Downloads\\erro.wav");
+                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                            Clip clip = AudioSystem.getClip();
+                            clip.open(audioStream);
+
+                            clip.start();
+                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                            ex1.printStackTrace();
+                            showErrorDialog("Failed to play sound.", ex1);
+                        }
+                    	JOptionPane.showMessageDialog(frame, 
+                                "        An error occurred \n Nothing has been printed!  \n ", 
+                                "Error!", JOptionPane.ERROR_MESSAGE,resizedIcon30);
+                    	try {
+
+                            File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                            Clip clip = AudioSystem.getClip();
+                            clip.open(audioStream);
+
+                            clip.start();
+                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                            ex1.printStackTrace();
+                            showErrorDialog("Failed to play sound.", ex1);
+                        }
+                    }
+                }
+            });     
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            int screenHeight = screenSize.height;
+            int windowHeight = frame.getHeight();
+            int x =230; 
+            int y = (screenHeight - windowHeight) / 2;
+            frame.setLocation(x, y);
+            frame.setVisible(true);
+        }
+    }
+    private class ExitButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+        	try {
+
+                File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioStream);
+
+                clip.start();
+            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                ex.printStackTrace();
+                showErrorDialog("Failed to play sound.", ex);
+            }
+        	try {
+
+                File soundFile = new File("C:\\Users\\david\\Downloads\\exit.wav");
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioStream);
+
+                clip.start();
+                try {
+					Thread.sleep(500);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                ex.printStackTrace();
+                showErrorDialog("Failed to play sound.", ex);
+                try {
+
+                    File soundFile = new File("C:\\Users\\david\\Downloads\\Click - Sound Effect.wav");
+                    AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+
+                    Clip clip = AudioSystem.getClip();
+                    clip.open(audioStream);
+
+                    clip.start();
+                } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex1) {
+                    ex1.printStackTrace();
+                    showErrorDialog("Failed to play sound.", ex1);
+                }
+            }
+            System.exit(0);
+
+        }
+    }
+
+    public static void main(String[] args) {
+        new FitnessTracker();
+    }
+}
